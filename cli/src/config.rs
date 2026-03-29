@@ -3,7 +3,7 @@ use std::path::Path;
 
 use serde::Deserialize;
 
-use crate::error::{Result, LlmstripError};
+use crate::error::{LlmstripError, Result};
 
 /// Maximum config file size. Configs larger than this are rejected before parsing.
 const MAX_CONFIG_BYTES: u64 = 1024 * 1024; // 1 MiB
@@ -58,10 +58,11 @@ impl Config {
                 path: path.into(),
                 source,
             })?;
-        let config: Config = toml::from_str(&content).map_err(|source| LlmstripError::ConfigParse {
-            path: path.into(),
-            source: Box::new(source),
-        })?;
+        let config: Config =
+            toml::from_str(&content).map_err(|source| LlmstripError::ConfigParse {
+                path: path.into(),
+                source: Box::new(source),
+            })?;
         config.validate()?;
         Ok(config)
     }

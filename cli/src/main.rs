@@ -13,7 +13,7 @@ use anstyle::{AnsiColor, Style};
 use clap::{Parser, ValueEnum};
 
 use detector::{detect_mode, is_commit_msg_file, Mode};
-use error::{exit_code, Result, LlmstripError};
+use error::{exit_code, LlmstripError, Result};
 use rules::{
     apply_code_rules, apply_structural_rules, apply_text_rules, apply_user_rules, clean,
     collect_ignored_lines, CodeRule, Finding, Severity,
@@ -319,11 +319,12 @@ impl Formatter {
                 } = result;
                 let had_findings = !findings.is_empty();
                 let report = build_json_report(&findings, &mode, filename.as_deref());
-                let json =
-                    serde_json::to_string_pretty(&report).map_err(|e| LlmstripError::FileWrite {
+                let json = serde_json::to_string_pretty(&report).map_err(|e| {
+                    LlmstripError::FileWrite {
                         path: args.output.as_deref().unwrap_or("<stdout>").into(),
                         source: std::io::Error::other(e.to_string()),
-                    })?;
+                    }
+                })?;
                 write_output(&json, args.output.as_deref())?;
                 Ok(had_findings)
             }
