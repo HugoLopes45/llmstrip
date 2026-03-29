@@ -2,7 +2,7 @@
 
 A linter for AI writing. Deterministic. No cloud. One pipe.
 
-> 25x excess frequency of `delve` post-ChatGPT. 280+ flagged words. Grounded in peer-reviewed corpus data.
+> 25× excess frequency of `delve` post-ChatGPT. 280+ excess words identified in corpus research. Grounded in peer-reviewed data.
 
 ![demo](assets/demo.gif)
 
@@ -11,8 +11,7 @@ A linter for AI writing. Deterministic. No cloud. One pipe.
 ## Install
 
 ```bash
-curl -fsSL https://github.com/HugoLopes45/llmstrip/releases/latest/download/llmstrip-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).tar.gz | tar xz
-sudo mv llmstrip /usr/local/bin/
+curl -fsSL https://raw.githubusercontent.com/HugoLopes45/llmstrip/main/scripts/install.sh | sh
 ```
 
 Or via Cargo:
@@ -59,9 +58,15 @@ echo "Certainly! Let me delve into this robust and comprehensive approach." | ll
 ```bash
 llmstrip --report --mode code service.py
 
-# HIGH   line 2: LLM docstring boilerplate: 'this function serves as'
-# MEDIUM line 1: Type-in-name anti-pattern: use 'user' instead of 'userDataObject'
-# LOW    line 3: Over-explaining comment: states what the code already shows
+# Mode: code  |  4 finding(s)
+#
+# HIGH (1)
+#   line 2: LLM docstring boilerplate: 'this function serves as' 'this function serves as'
+#
+# MEDIUM (3)
+#   line 1: Type-in-name anti-pattern: use 'user' instead 'userDataObject'
+#   line 6: Type-in-name anti-pattern: use 'user' instead 'userDataObject'
+#   line 7: Type-in-name anti-pattern: use 'user' instead 'userDataObject'
 ```
 
 ### Catch AI commit messages before they land
@@ -69,17 +74,16 @@ llmstrip --report --mode code service.py
 ```bash
 # .git/hooks/commit-msg
 #!/bin/sh
-llmstrip --mode code --rules commits --report --min-severity high "$1"
+llmstrip --mode code --rules commits --report --fail --min-severity high "$1"
 ```
 
-Before:
+Example report output:
 ```
-Added new comprehensive authentication feature with improved error handling and robust validation
-```
+Mode: code  |  1 finding(s)
 
-After:
-```
-add auth feature
+HIGH (1)
+  line 1: Past tense in commit subject: use imperative mood ('add' not 'added') 'added'
+Added new comprehensive authentication feature with improved error handling
 ```
 
 ---
@@ -89,7 +93,7 @@ add auth feature
 Block AI-written release notes in CI:
 
 ```bash
-llmstrip --report --min-severity high release-notes.md || exit 1
+llmstrip --report --fail --min-severity high release-notes.md
 ```
 
 ---
@@ -104,7 +108,7 @@ llmstrip is a Unix filter: same input, same output, every time. One static binar
 
 ## Contribute a pattern
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Open an issue with the pattern, a before/after, and a corpus source if you have one.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Open an issue with the pattern, a before/after, and a corpus source if you have one. Label the issue `new-rule`.
 
 ---
 

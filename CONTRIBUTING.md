@@ -1,6 +1,6 @@
 # Contributing
 
-### Adding a pattern
+## Adding a pattern
 
 Patterns are implemented in Rust (`cli/src/rules/`). To propose a new one:
 
@@ -17,7 +17,7 @@ echo "your test input" | cargo run --manifest-path cli/Cargo.toml
 make test
 ```
 
-Unit tests live in `cli/src/rules.rs` under `#[cfg(test)]`.
+Unit tests live in `cli/src/rules/mod.rs` and sibling modules under `#[cfg(test)]`. Note: `rules/` at the repo root is documentation only — the implementation lives in `cli/src/rules/`.
 Integration tests (binary-level) live in `cli/tests/integration.rs`.
 
 Add a test case for your new rule in the appropriate module.
