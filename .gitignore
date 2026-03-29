@@ -106,6 +106,19 @@ AGENTS.md
 # Aider
 CONVENTIONS.md
 
+# =============================================================================
+# Project-internal / non-public files
+# =============================================================================
+
+# AI-driven development docs (internal memory, architecture notes)
+aidd_docs/
+
+# Adversarial challenge results (internal benchmark, not public API)
+CHALLENGE.md
+
+# Temporary files
+*.tmp
+
 # Amazon Q
 .amazonq/
 
