@@ -13,7 +13,7 @@ Enter
 Sleep 1500ms
 
 # Scene 2: strip classic AI prose
-Type `echo "Certainly! Let me delve into this robust and comprehensive approach." | llmstrip`
+Type `echo "Let me delve into this robust and comprehensive approach." | llmstrip`
 Sleep 500ms
 Enter
 Sleep 1500ms

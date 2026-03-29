@@ -73,8 +73,8 @@ cargo install --git https://github.com/HugoLopes45/llmstrip
 ### Strip AI prose
 
 ```bash
-echo "Certainly! Let me delve into this robust and comprehensive approach." | llmstrip
-# -> Let me dig into this solid approach.
+echo "Let me delve into this robust and comprehensive approach." | llmstrip
+# -> Let me dig into this solid and thorough approach.
 ```
 
 ### Clean AI-generated code comments
