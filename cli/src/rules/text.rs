@@ -14,17 +14,29 @@ const TEXT_RULES: &[TextRule] = &[
     // === CRITICAL: r > 10× baseline (Kobak et al., Science Advances 2025) ===
     // source: kobak2024 r=25.2 — most extreme outlier across 15M PubMed abstracts
     // "dig" works in all positions: "dig into", "dig deeper", "dig further"
+    // Inflected forms listed longest-first so word-boundary checks work correctly.
     TextRule {
-        needle: "delve",
-        message: "LLM tell: 'delve' (25× excess frequency, Kobak 2025)",
-        replacement: Some("dig"),
+        needle: "delving",
+        message: "LLM tell: 'delving' (25× excess frequency, Kobak 2025)",
+        replacement: Some("digging"),
         severity: Severity::Critical,
     },
-    // source: kobak2024 r=25.2 — inflected form; word boundary prevents 'delves' matching 'delve'
+    TextRule {
+        needle: "delved",
+        message: "LLM tell: 'delved' (25× excess frequency, Kobak 2025)",
+        replacement: Some("dug"),
+        severity: Severity::Critical,
+    },
     TextRule {
         needle: "delves",
         message: "LLM tell: 'delves' (25× excess frequency, Kobak 2025)",
         replacement: Some("digs"),
+        severity: Severity::Critical,
+    },
+    TextRule {
+        needle: "delve",
+        message: "LLM tell: 'delve' (25× excess frequency, Kobak 2025)",
+        replacement: Some("dig"),
         severity: Severity::Critical,
     },
     // source: kobak2024 r=9.2 — below the r>10 Critical threshold; High
@@ -141,13 +153,16 @@ const TEXT_RULES: &[TextRule] = &[
         severity: Severity::High,
     },
     // source: neri2024 confirmed high z-score
+    // replacement: None — bare "testament" appears inside "stands as a testament"; giving both
+    // a replacement causes offset corruption in clean() when both fire on the same line.
+    // The specific phrase rule below handles the common case.
     TextRule {
         needle: "testament",
         message: "LLM filler: 'testament' (Neri 2024)",
-        replacement: Some("proof"),
+        replacement: None,
         severity: Severity::High,
     },
-    // source: neri2024 confirmed; more specific phrase must come before bare "testament"
+    // source: neri2024 confirmed; specific phrase flagged and fixed independently
     TextRule {
         needle: "stands as a testament",
         message: "LLM cliché: 'stands as a testament' (Neri 2024)",
@@ -388,7 +403,8 @@ const TEXT_RULES: &[TextRule] = &[
     TextRule {
         needle: "in conclusion",
         message: "LLM connector: 'in conclusion' (Rosenfeld 2024)",
-        replacement: Some(""),
+        // None: "in conclusion" is rarely the whole line; phrase-level delete would destroy following content
+        replacement: None,
         severity: Severity::Low,
     },
     TextRule {
@@ -398,28 +414,31 @@ const TEXT_RULES: &[TextRule] = &[
         severity: Severity::Low,
     },
     // source: kobak2024 — hedging phrase
+    // "that" variant must come before bare form to avoid double-match on same position.
+    // replacement: None — phrase is mid-sentence; replacing the phrase leaves the rest dangling.
+    // The prompt handles structural deletion; the binary flags only.
     TextRule {
         needle: "it is worth noting that",
         message: "LLM hedge: 'it is worth noting that' (Kobak 2025)",
-        replacement: Some(""),
+        replacement: None,
         severity: Severity::Low,
     },
     TextRule {
         needle: "it is worth noting",
         message: "LLM hedge: 'it is worth noting' (Kobak 2025)",
-        replacement: Some("note:"),
+        replacement: None,
         severity: Severity::Low,
     },
     TextRule {
         needle: "it is important to note that",
         message: "LLM hedge: 'it is important to note that'",
-        replacement: Some(""),
+        replacement: None,
         severity: Severity::Low,
     },
     TextRule {
         needle: "it is important to note",
         message: "LLM hedge: 'it is important to note'",
-        replacement: Some("note:"),
+        replacement: None,
         severity: Severity::Low,
     },
     TextRule {
