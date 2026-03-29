@@ -1,65 +1,33 @@
-# llmstrip — humanize AI-generated text and code
+# llmstrip
 
-AI writes like AI. llmstrip fixes that.
+A linter for AI writing. Deterministic. No cloud. One pipe.
 
-```bash
-$ echo "Certainly! Let me delve into this comprehensive topic." | llmstrip
-Let me explore this thorough topic.
-```
+> 25x excess frequency of `delve` post-ChatGPT. 280+ flagged words. Grounded in peer-reviewed corpus data.
 
-You know the patterns when you read them: *Certainly!*, *leveraging*, *delve*, *meticulous*,
-*it is worth noting*. Every model writes this way. RLHF bakes it in — human raters reward
-formal-sounding output, so models overfit to a vocabulary that sounds polished but reads robotic.
-
-`llmstrip` is a **CLI humanizer for AI text and code**. It strips those patterns out, replaces
-what it can automatically, and flags the rest. Pipe it into your workflow and your output
-reads like a person wrote it — not a chatbot trying to sound helpful.
-
-Unlike web-based AI humanizers, llmstrip is **deterministic**: same input, same output, every time.
-No cloud. No API calls. No model in the loop. Just regex rules grounded in corpus data, fast
-enough to run on every keystroke.
-
----
-
-## What it humanizes
-
-| Input | Mode | What gets cleaned |
-|-------|------|-------------------|
-| Blog posts, docs, emails | Text | Openers, filler words, hedges, clichés |
-| Source code | Code | Comments, variable names, docstrings, test boilerplate |
-| Git commit messages | Commit | Past tense, vague subjects, bloated bodies |
-
-Everything in one binary. No config files. No dependencies.
+![demo](assets/demo.gif)
 
 ---
 
 ## Install
 
-### Prebuilt binary (fastest)
-
-Download from [GitHub Releases](https://github.com/HugoLopes45/llmstrip/releases/latest):
-
-| Platform | File |
-|----------|------|
-| Linux x86_64 | `llmstrip-v*-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux arm64 | `llmstrip-v*-aarch64-unknown-linux-gnu.tar.gz` |
-| macOS x86_64 | `llmstrip-v*-x86_64-apple-darwin.tar.gz` |
-| macOS arm64 (M1/M2/M3) | `llmstrip-v*-aarch64-apple-darwin.tar.gz` |
-| Windows | `llmstrip-v*-x86_64-pc-windows-msvc.zip` |
-
-Extract and put `llmstrip` anywhere in your `$PATH`.
-
-### From source (recommended)
-
 ```bash
-git clone https://github.com/HugoLopes45/llmstrip
-cd llmstrip
-make install
+curl -fsSL https://github.com/HugoLopes45/llmstrip/releases/latest/download/llmstrip-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).tar.gz | tar xz
+sudo mv llmstrip /usr/local/bin/
 ```
 
-Requires Rust 1.82+. The binary ends up at `~/.cargo/bin/llmstrip`.
+Or via Cargo:
 
-### Claude Code skill
+```bash
+cargo install --git https://github.com/HugoLopes45/llmstrip
+```
+
+---
+
+## Claude Code — filter every response
+
+The fastest way to use llmstrip is as a Claude Code hook. Every response Claude generates gets filtered before it reaches you.
+
+Install the skill:
 
 ```bash
 mkdir -p ~/.claude/skills/llmstrip
@@ -69,233 +37,34 @@ curl -sL https://raw.githubusercontent.com/HugoLopes45/llmstrip/main/prompts/cla
 
 Type `/llmstrip` in any Claude Code session to humanize the current file or selection.
 
-Or from the repo: `make install-skill`
-
-### Cursor
+Or from the repo:
 
 ```bash
-make install-cursor   # copies prompts/cursor.mdc → .cursor/rules/llmstrip.mdc
-```
-
-Cursor picks up the rules on every generation in that project.
-
-### Universal: AGENTS.md integrations
-
-The `agents.md` prompt works with any tool that reads AGENTS.md-style files. One file, nine tools:
-
-| Tool | Command | File written |
-|------|---------|-------------|
-| opencode | `make install-opencode` | `~/.config/opencode/AGENTS.md` |
-| OpenAI Codex CLI | `make install-codex` | `~/.codex/AGENTS.md` |
-| Windsurf | `make install-windsurf` | `.windsurf/rules/llmstrip.md` |
-| Zed | `make install-zed` | `.rules` |
-| GitHub Copilot | `make install-copilot` | `.github/copilot-instructions.md` |
-| Cline | `make install-cline` | `.clinerules` |
-| Amp | `make install-amp` | `AGENTS.md` (project root) |
-| Amazon Q | `make install-amazonq` | `.amazonq/rules/llmstrip.md` |
-| Continue.dev | `make install-continue` | `.continue/rules/llmstrip.md` |
-
-Only `install-opencode` and `install-codex` write to global config paths (`~`). All other targets write project-local files into your current directory — add them to `.gitignore` if you don't want to share them with your team.
-
-### Aider
-
-```bash
-make install-aider   # copies agents.md → CONVENTIONS.md
-```
-
-Then add to `.aider.conf.yml`:
-
-```yaml
-read: CONVENTIONS.md
-```
-
-### Install everything at once
-
-```bash
-make install-all
-```
-
-Installs Claude Code skill, Cursor rule, and all AGENTS.md integrations in one shot. Several targets write files into your current working directory — run this from your project root.
-
-### Any LLM (ChatGPT, Gemini, API)
-
-Copy `prompts/system-prompt.md` into your system prompt. Done.
-
----
-
-## Usage
-
-### Clean text and move on
-
-```bash
-# pipe through llmstrip, get humanized text back
-echo "Certainly! We should utilize this approach." | llmstrip
-# → "We should use this approach."
-
-# humanize a file
-llmstrip draft.md > draft-clean.md
-
-# overwrite in place
-llmstrip draft.md | sponge draft.md
-```
-
-Only patterns with an auto-fix get replaced. Everything else passes through unchanged.
-Use `--report` to see what was flagged but couldn't be auto-fixed.
-
-### `--report` — what's wrong and why
-
-Inspect findings without changing anything. Every finding cites the corpus study that measured it.
-
-```bash
-llmstrip --report draft.md
-
-# high-priority only
-llmstrip --report --min-severity high draft.md
-```
-
-```
-Mode: text  |  11 finding(s)
-
-CRITICAL (2)
-  line 1: Sycophantic opener: 'Certainly!' (RLHF-induced, Juzek 2025)
-  line 1: LLM tell: 'delve' (25× excess frequency, Kobak 2025)
-
-HIGH (3)
-  line 2: LLM filler: 'leveraging' (Kobak 2025)
-  line 2: LLM tell: 'pivotal' (Kobak 2025, Liang 2024)
-  line 3: LLM cliché: 'stands as a testament' (Neri 2024)
-
-MEDIUM (3)
-  line 1: LLM filler: 'comprehensive' (Kobak 2025)
-  line 2: LLM filler: 'robust' (Kobak 2025)
-  line 3: LLM filler: 'innovative' (Kobak 2025)
-
-LOW (3)
-  line 1: LLM hedge: 'it is worth noting' (Kobak 2025)
-  line 2: LLM connector: 'furthermore' (Rosenfeld 2024)
-  line 3: LLM connector: 'in conclusion' (Rosenfeld 2024)
-```
-
-### `--diff` — preview changes before applying them
-
-```bash
-llmstrip --diff draft.md
-```
-
-```diff
---- original
-+++ cleaned
-@@ -1,3 +1,3 @@
--It is worth noting that this comprehensive approach is pivotal to our success.
--Furthermore, leveraging these robust methodologies facilitates seamless collaboration.
-+This thorough approach is key to our success.
-+Using these robust methodologies facilitates collaboration.
- In conclusion, this innovative solution stands as a testament to meticulous engineering.
-```
-
-Patterns without an auto-fix (like `meticulous`, `innovative`) won't show in the diff.
-Run `--report` alongside to see the full picture.
-
-### `--dry-run` — list every change before applying
-
-```bash
-llmstrip --dry-run draft.md
-```
-
-```
---- Auto-fixable (4) ---
-  line  1: "utilize" → "use"  — LLM filler: 'utilize' (Kobak 2025)
-  line  2: "leveraging" → "using"  — LLM filler: 'leveraging' (Kobak 2025)
-  line  3: "facilitate" → "help"  — LLM filler: 'facilitate' (Kobak 2025)
-  line  4: "in order to" → "to"  — Filler: 'in order to'
-
---- Flagged (no auto-fix) (2) ---
-  line  5: "meticulous"  — LLM tell: 'meticulous' (Kobak 2025, Neri 2024)
-  line  6: "innovative"  — LLM filler: 'innovative' (Kobak 2025, lower ratio)
-```
-
-Original text prints unchanged after the list — safe to pipe elsewhere.
-
-### `--annotate` — mark findings inline
-
-```bash
-llmstrip --annotate draft.md
-```
-
-Prints each line, with finding markers at the exact column on stderr.
-Good for spotting where the patterns cluster in a longer document.
-
-### Humanize code
-
-```bash
-# explicit code mode
-llmstrip --mode code --report service.py
-
-# only flag naming and comments
-llmstrip --mode code --rules naming,comments --report service.ts
-
-# docstrings only
-llmstrip --mode code --rules docstrings --report api.go
-```
-
-Available `--rules` values: `comments`, `naming`, `commits`, `docstrings`, `tests`, `errors`, `api`
-
-**Before:**
-
-```python
-def getUserDataObject(userDataObject):
-    # This function serves as the core handler for processing user data
-    # Initialize the result variable to store the output
-    result = None
-    return result
-```
-
-**Findings:**
-
-```
-HIGH   line 2: LLM docstring boilerplate: 'this function serves as'
-MEDIUM line 1: Type-in-name anti-pattern: use 'user' instead of 'userDataObject'
-LOW    line 3: Over-explaining comment: states what the code already shows
-```
-
-### Humanize commit messages
-
-llmstrip fires commit-specific rules automatically on `COMMIT_EDITMSG` and `MERGE_MSG` files.
-
-```bash
-# check a commit message
-llmstrip --report COMMIT_EDITMSG
-
-# pipe one through
-echo "Added new authentication feature" | llmstrip --mode code --rules commits --report
-# HIGH: Past tense in commit subject — use imperative mood ('add' not 'added')
+make install-skill
 ```
 
 ---
 
-## Severity levels
+## Use cases
 
-| Level | Meaning | Example |
-|-------|---------|---------|
-| `critical` | Statistically extreme (r > 10×) or RLHF-specific pattern | `delve`, `Certainly!`, `feel free to` |
-| `high` | Strong corpus signal (r > 3×) or clear LLM boilerplate | `leveraging`, `pivotal`, `meticulous` |
-| `medium` | Elevated in LLM text, also common in marketing copy | `comprehensive`, `robust`, `innovative` |
-| `low` | Filler and hedging language that reads as padded | `in order to`, `moreover`, `furthermore` |
-
-Filter with `--min-severity`:
+### Strip AI prose
 
 ```bash
-llmstrip --report --min-severity high draft.md   # High + Critical only
-llmstrip --report --min-severity critical post.md  # Critical only
+echo "Certainly! Let me delve into this robust and comprehensive approach." | llmstrip
+# -> Let me explore this solid approach.
 ```
 
----
+### Clean AI-generated code comments
 
-## Git hooks
+```bash
+llmstrip --report --mode code service.py
 
-Drop llmstrip into your commit flow and catch LLM-isms before they land.
+# HIGH   line 2: LLM docstring boilerplate: 'this function serves as'
+# MEDIUM line 1: Type-in-name anti-pattern: use 'user' instead of 'userDataObject'
+# LOW    line 3: Over-explaining comment: states what the code already shows
+```
 
-**Non-blocking (report only):**
+### Catch AI commit messages before they land
 
 ```bash
 # .git/hooks/commit-msg
@@ -303,166 +72,51 @@ Drop llmstrip into your commit flow and catch LLM-isms before they land.
 llmstrip --mode code --rules commits --report --min-severity high "$1"
 ```
 
-**Blocking (reject bad commit messages):**
-
-```bash
-# .git/hooks/commit-msg
-#!/bin/sh
-findings=$(llmstrip --mode code --rules commits --report --min-severity high "$1" 2>&1)
-if echo "$findings" | grep -q "finding(s)"; then
-  echo "$findings" >&2
-  echo "" >&2
-  echo "Fix the commit message and try again." >&2
-  exit 1
-fi
+Before:
+```
+Added new comprehensive authentication feature with improved error handling and robust validation
 ```
 
-```bash
-chmod +x .git/hooks/commit-msg
+After:
+```
+add auth feature
 ```
 
 ---
 
-## What it catches
+## CI gate
 
-### Text patterns
+Block AI-written release notes in CI:
 
-| Pattern | Severity | Source |
-|---------|----------|--------|
-| `Certainly!`, `Of course!`, `Absolutely!`, `Great question!` | Critical | Juzek 2025 (RLHF) |
-| `I'd be happy to`, `Happy to help`, `feel free to` | Critical | Juzek 2025 (RLHF) |
-| `delve`, `delves` | Critical | Kobak 2025 (r=25×) |
-| `leveraging`, `utilize`, `facilitate`, `commence` | High | Kobak 2025 |
-| `pivotal`, `meticulous`, `intricate`, `realm` | High | Kobak 2025, Liang 2024 |
-| `stands as a testament`, `tapestry` | High | Neri 2024 |
-| `comprehensive`, `robust`, `seamlessly`, `innovative` | Medium | Kobak 2025 |
-| `in order to`, `moreover`, `furthermore`, `in conclusion` | Low | Rosenfeld 2024 |
-
-### Code patterns
-
-| Pattern | Severity | Rule |
-|---------|----------|------|
-| `# This function serves as...`, `# This class represents...` | High | `docstrings` |
-| `# Initialize the X variable to Y` | Low | `comments` |
-| `UserDataManager`, `ErrorHandler`, `ProcessingHelper` | High | `naming` |
-| `userDataObject`, `configurationSettings` | Medium | `naming` |
-| `Added X` in commit subject | High | `commits` |
-| `assert result is not None` with no message | Medium | `tests` |
-| bare `except: pass` | High | `errors` |
-
-137 patterns across 9 rule files. [Browse them in `rules/`](rules/).
-
-### What llmstrip doesn't touch
-
-- Content inside fenced code blocks in Markdown (` ``` ` fences)
-- Inline backtick spans (`` `code` ``)
-- Bare URL lines
-- Non-English text: `"pivotale"` (French), `"pivotaler"` (German), `"这是pivotal决策"` (Chinese) — word-boundary matching is Unicode-safe, so foreign words containing an English flagged word pass through unchanged
+```bash
+llmstrip --report --min-severity high release-notes.md || exit 1
+```
 
 ---
 
 ## Why a CLI, not a web app
 
-Most AI text humanizers are web apps: you paste text, a model rewrites it, you copy the output.
-That works for one-off documents. It breaks for everything else.
+Every AI text humanizer is a web app. You paste text, a model rewrites it, you copy the output. That breaks for pipelines, hooks, and automation.
 
-llmstrip is a **Unix filter**. It composes:
-
-```bash
-# humanize every markdown file in a repo
-find . -name "*.md" | xargs -I{} sh -c 'llmstrip {} | sponge {}'
-
-# gate a CI pipeline on AI writing quality
-llmstrip --report --min-severity high release-notes.md || exit 1
-
-# pre-commit hook that blocks AI-written commit messages
-llmstrip --mode code --rules commits --report COMMIT_EDITMSG
-
-# integrate into your editor's format-on-save
-llmstrip % | sponge %
-```
-
-Other humanizers can't do any of this. They're also non-deterministic: the same sentence
-in, different output each run. llmstrip gives you the same result every time — which means you
-can review diffs, write tests, and trust it in automation.
-
-**Zero dependencies.** No Python runtime. No Node. No Docker. One static binary, ~2MB.
+llmstrip is a Unix filter: same input, same output, every time. One static binary. No Python runtime. No network call. Fast enough to run on every keystroke.
 
 ---
 
-## Why this exists
+## Contribute a pattern
 
-LLMs generate the statistical median of "correct writing." That median is padded,
-over-hedged, and full of words that sound confident while saying nothing specific.
-
-The patterns are predictable because RLHF rewards formal-sounding text.
-*Leveraging* because business writing uses it. *Furthermore* because academic papers use it.
-*Certainly!* because it sounds agreeable to a human rater grading a response.
-
-None of it is wrong, exactly. It just doesn't sound like a person wrote it.
-A person would say *using* instead of *leveraging*. A person's code comment
-would say `# don't touch this — it works and I don't know why` instead of
-`# This function serves as the core processing handler for user data operations`.
-
-`llmstrip` draws a line. Write like yourself, not like a chatbot trying to sound helpful.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Open an issue with the pattern, a before/after, and a corpus source if you have one.
 
 ---
 
-## Research basis
+## Research
 
-Rules are grounded in peer-reviewed corpus studies, not intuition.
+Rules are grounded in peer-reviewed corpus studies:
 
-**Kobak et al. (2025), *Science Advances*** — 15 million PubMed abstracts (2010–2024).
-`delves` appeared 25× more often post-ChatGPT than baseline. 280+ excess words identified,
-66% verbs, 18% adjectives. This is the core word list.
-[arXiv:2406.07016](https://arxiv.org/abs/2406.07016)
-
-**Liang et al. (2024), *Nature Human Behaviour*** — 950,000+ scientific papers.
-`pivotal`, `intricate`, `showcasing`, `realm` approximately doubled post-2023.
-[arXiv:2404.01268](https://arxiv.org/abs/2404.01268)
-
-**Juzek & Ward (COLING 2025)** — Explains *why* the vocabulary diverges: RLHF, not training data.
-Human raters prefer formal-sounding outputs. Models overfit to that preference.
-[arXiv:2412.11385](https://arxiv.org/abs/2412.11385)
-
-**Rosenfeld & Lazebnik (2024)** — 6 LLMs vs 13,371 NYT articles. LLMs produce less sentence
-length variation, more auxiliary verbs, fewer complex noun phrases.
-[PMC11422446](https://pmc.ncbi.nlm.nih.gov/articles/PMC11422446/)
-
-**Bisztray et al. (AISec 2025)** — Comment density is the #1 feature for LLM code authorship
-attribution. Removing it drops accuracy 7.2pp.
-[arXiv:2506.17323](https://arxiv.org/abs/2506.17323)
-
-**Lopes & Klotzman (ICSE 2024)** — LLM commit messages are 20× longer than human commits
-(median 381 vs 19 chars). LLM commits always include "why" explanations.
-[arXiv:2401.17622](https://arxiv.org/abs/2401.17622)
-
-This tool is a **style linter**, not an AI detector. It cannot tell you whether a document
-was written by an LLM — no surface-level tool can do that reliably. What it can do is
-help you write in a voice that reads as distinctly human.
+- **Kobak et al. (2025)** — 15M PubMed abstracts. `delve` appeared 25x more often post-ChatGPT. 280+ excess words identified. [arXiv:2406.07016](https://arxiv.org/abs/2406.07016)
+- **Liang et al. (2024)** — 950K+ papers. `pivotal`, `intricate`, `realm` doubled post-2023. [arXiv:2404.01268](https://arxiv.org/abs/2404.01268)
+- **Juzek & Ward (2025)** — Explains why: RLHF, not training data. Human raters prefer formal-sounding output. Models overfit to that. [arXiv:2412.11385](https://arxiv.org/abs/2412.11385)
 
 ---
-
-## Rules
-
-Nine files, 137 patterns. Each has a before/after and a one-line fix.
-
-- [`rules/text.md`](rules/text.md) — 24 prose patterns
-- [`rules/code-comments.md`](rules/code-comments.md) — 18 comment patterns
-- [`rules/naming.md`](rules/naming.md) — 14 naming patterns
-- [`rules/commits.md`](rules/commits.md) — 10 commit message patterns
-- [`rules/docstrings.md`](rules/docstrings.md) — 8 docstring patterns
-- [`rules/tests.md`](rules/tests.md) — 15 test patterns
-- [`rules/error-handling.md`](rules/error-handling.md) — 15 error handling patterns
-- [`rules/api-design.md`](rules/api-design.md) — 17 API design patterns
-- [`rules/llm-tells.md`](rules/llm-tells.md) — 16 fingerprints unique to LLMs
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). Open an issue with the
-[new rule template](.github/ISSUE_TEMPLATE/new-rule.md) before writing code.
-
-The bar: if a human developer would write it unprompted, it's not a style violation.
 
 ## License
 

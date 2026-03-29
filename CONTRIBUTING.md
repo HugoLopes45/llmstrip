@@ -1,17 +1,14 @@
 # Contributing
 
-## Adding a rule
+### Adding a pattern
 
-Rules live in `rules/*.md` — plain Markdown files, one per category (text, comments, naming, commits, etc.).
+Patterns are implemented in Rust (`cli/src/rules/`). To propose a new one:
 
-The implementation reads these files and maps them into Rust structs in `cli/src/rules.rs`.
-To add a rule:
+1. Open an issue with the label `new-rule`
+2. Include: the pattern, a before/after example, and the corpus source (if you have one)
+3. The maintainer will implement it and credit you in the changelog
 
-1. Open the relevant `rules/<category>.md` (e.g. `rules/text.md`).
-2. Add an entry following the existing pattern — each rule has an `id`, `pattern`, `message`, optional `fix`, and `severity`.
-3. In `cli/src/rules.rs`, add the rule to the appropriate constant (`TEXT_RULES`, `COMMIT_RULES`, `CODE_RULES`, etc.) in the same format as existing entries.
-
-If no category fits, create `rules/<category>.md` and add corresponding entries to `cli/src/rules.rs`.
+The bar: if a human developer would write it unprompted, it is not a style violation.
 
 ## Testing a rule
 
