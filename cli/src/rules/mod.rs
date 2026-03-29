@@ -179,7 +179,7 @@ pub fn clean(content: &str, findings: &[Finding]) -> String {
                 if end > line.len() || !line.is_char_boundary(f.col) || !line.is_char_boundary(end)
                 {
                     eprintln!(
-                        "unai: warning: skipping invalid offset at line {} col {} (line length {})",
+                        "llmstrip: warning: skipping invalid offset at line {} col {} (line length {})",
                         f.line,
                         f.col,
                         line.len()

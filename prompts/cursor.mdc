@@ -78,4 +78,4 @@ tapestry, testament, delve, underscore, pivotal, comprehensive, multifaceted, ev
 
 ## Correction: when asked to edit, remove these patterns
 
-When the user asks you to clean, edit, review, or "unai" a piece of text or code, apply every applicable rule above and output only the corrected content. No preamble. No list of changes. No closing remarks. Match the input format exactly.
+When the user asks you to clean, edit, review, or "llmstrip" a piece of text or code, apply every applicable rule above and output only the corrected content. No preamble. No list of changes. No closing remarks. Match the input format exactly.

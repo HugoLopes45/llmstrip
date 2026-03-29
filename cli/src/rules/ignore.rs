@@ -3,9 +3,9 @@ use std::collections::HashSet;
 /// Returns 1-based line numbers that should be skipped due to ignore directives.
 ///
 /// Supported directives:
-/// - `<!-- unai-ignore -->` ... `<!-- /unai-ignore -->` (HTML block)
-/// - `// unai-ignore-start` / `// unai-ignore-end` (code block, also `#` prefix)
-/// - `// unai-ignore-next-line` / `# unai-ignore-next-line` (next line only)
+/// - `<!-- llmstrip-ignore -->` ... `<!-- /llmstrip-ignore -->` (HTML block)
+/// - `// llmstrip-ignore-start` / `// llmstrip-ignore-end` (code block, also `#` prefix)
+/// - `// llmstrip-ignore-next-line` / `# llmstrip-ignore-next-line` (next line only)
 pub fn collect_ignored_lines(content: &str) -> HashSet<usize> {
     let mut ignored = HashSet::new();
     let mut in_html_block = false;
@@ -23,31 +23,31 @@ pub fn collect_ignored_lines(content: &str) -> HashSet<usize> {
         }
 
         // HTML block open
-        if trimmed == "<!-- unai-ignore -->" {
+        if trimmed == "<!-- llmstrip-ignore -->" {
             in_html_block = true;
             continue;
         }
 
         // HTML block close
-        if trimmed == "<!-- /unai-ignore -->" {
+        if trimmed == "<!-- /llmstrip-ignore -->" {
             in_html_block = false;
             continue;
         }
 
         // Code block start (// or #)
-        if trimmed == "// unai-ignore-start" || trimmed == "# unai-ignore-start" {
+        if trimmed == "// llmstrip-ignore-start" || trimmed == "# llmstrip-ignore-start" {
             in_code_block = true;
             continue;
         }
 
         // Code block end (// or #)
-        if trimmed == "// unai-ignore-end" || trimmed == "# unai-ignore-end" {
+        if trimmed == "// llmstrip-ignore-end" || trimmed == "# llmstrip-ignore-end" {
             in_code_block = false;
             continue;
         }
 
         // Next-line directive (// or #)
-        if trimmed == "// unai-ignore-next-line" || trimmed == "# unai-ignore-next-line" {
+        if trimmed == "// llmstrip-ignore-next-line" || trimmed == "# llmstrip-ignore-next-line" {
             skip_next = true;
             continue;
         }
@@ -67,7 +67,7 @@ mod tests {
     #[test]
     fn html_block_ignore() {
         let content =
-            "line 1\n<!-- unai-ignore -->\nline 3\nline 4\n<!-- /unai-ignore -->\nline 6\n";
+            "line 1\n<!-- llmstrip-ignore -->\nline 3\nline 4\n<!-- /llmstrip-ignore -->\nline 6\n";
         let ignored = collect_ignored_lines(content);
         assert!(!ignored.contains(&1));
         assert!(ignored.contains(&3));
@@ -77,7 +77,7 @@ mod tests {
 
     #[test]
     fn next_line_ignore() {
-        let content = "line 1\n# unai-ignore-next-line\nline 3\nline 4\n";
+        let content = "line 1\n# llmstrip-ignore-next-line\nline 3\nline 4\n";
         let ignored = collect_ignored_lines(content);
         assert!(!ignored.contains(&1));
         assert!(!ignored.contains(&2));
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn start_end_block() {
-        let content = "line 1\n// unai-ignore-start\nline 3\nline 4\n// unai-ignore-end\nline 6\n";
+        let content = "line 1\n// llmstrip-ignore-start\nline 3\nline 4\n// llmstrip-ignore-end\nline 6\n";
         let ignored = collect_ignored_lines(content);
         assert!(!ignored.contains(&1));
         assert!(ignored.contains(&3));
@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn hash_start_end_block() {
-        let content = "line 1\n# unai-ignore-start\nline 3\nline 4\n# unai-ignore-end\nline 6\n";
+        let content = "line 1\n# llmstrip-ignore-start\nline 3\nline 4\n# llmstrip-ignore-end\nline 6\n";
         let ignored = collect_ignored_lines(content);
         assert!(!ignored.contains(&1));
         assert!(ignored.contains(&3));
@@ -107,7 +107,7 @@ mod tests {
 
     #[test]
     fn slash_next_line_ignore() {
-        let content = "line 1\n// unai-ignore-next-line\nline 3\nline 4\n";
+        let content = "line 1\n// llmstrip-ignore-next-line\nline 3\nline 4\n";
         let ignored = collect_ignored_lines(content);
         assert!(!ignored.contains(&1));
         assert!(!ignored.contains(&2));
@@ -122,7 +122,7 @@ mod tests {
 
     #[test]
     fn directive_lines_not_ignored() {
-        let content = "<!-- unai-ignore -->\nline 2\n<!-- /unai-ignore -->\n";
+        let content = "<!-- llmstrip-ignore -->\nline 2\n<!-- /llmstrip-ignore -->\n";
         let ignored = collect_ignored_lines(content);
         assert!(!ignored.contains(&1));
         assert!(ignored.contains(&2));
@@ -131,7 +131,7 @@ mod tests {
 
     #[test]
     fn next_line_at_end_of_file() {
-        let content = "line 1\n# unai-ignore-next-line\n";
+        let content = "line 1\n# llmstrip-ignore-next-line\n";
         let ignored = collect_ignored_lines(content);
         assert!(ignored.is_empty() || !ignored.contains(&1));
     }

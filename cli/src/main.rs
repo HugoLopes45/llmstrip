@@ -13,7 +13,7 @@ use anstyle::{AnsiColor, Style};
 use clap::{Parser, ValueEnum};
 
 use detector::{detect_mode, is_commit_msg_file, Mode};
-use error::{exit_code, Result, UnaiError};
+use error::{exit_code, Result, LlmstripError};
 use rules::{
     apply_code_rules, apply_structural_rules, apply_text_rules, apply_user_rules, clean,
     collect_ignored_lines, CodeRule, Finding, Severity,
@@ -24,7 +24,7 @@ const MAX_STDIN_BYTES: usize = 64 * 1024 * 1024; // 64 MiB
 
 #[derive(Parser, Debug)]
 #[command(
-    name = "unai",
+    name = "llmstrip",
     version,
     about = "Remove LLM-isms from text and code",
     long_about = None
@@ -71,7 +71,7 @@ struct Args {
     #[arg(long, value_name = "FILE")]
     output: Option<String>,
 
-    /// Path to config file. Defaults to ./unai.toml if present.
+    /// Path to config file. Defaults to ./llmstrip.toml if present.
     #[arg(long, value_name = "FILE")]
     config: Option<String>,
 
@@ -212,7 +212,7 @@ fn write_output(content: &str, output_path: Option<&str>) -> Result<()> {
             // Refuse to write through symlinks to prevent clobbering unintended targets.
             if let Ok(meta) = std::fs::symlink_metadata(path) {
                 if meta.file_type().is_symlink() {
-                    return Err(UnaiError::FileWrite {
+                    return Err(LlmstripError::FileWrite {
                         path: path.into(),
                         source: std::io::Error::new(
                             std::io::ErrorKind::InvalidInput,
@@ -221,7 +221,7 @@ fn write_output(content: &str, output_path: Option<&str>) -> Result<()> {
                     });
                 }
             }
-            fs::write(path, content).map_err(|source| UnaiError::FileWrite {
+            fs::write(path, content).map_err(|source| LlmstripError::FileWrite {
                 path: path.into(),
                 source,
             })?;
@@ -245,11 +245,11 @@ fn main() {
             }
         }
         Err(e) => {
-            eprintln!("unai: {e}");
+            eprintln!("llmstrip: {e}");
             let code = match &e {
-                UnaiError::ConfigParse { .. }
-                | UnaiError::ConfigInvalid(_)
-                | UnaiError::InvalidRule(_) => exit_code::CONFIG_ERROR,
+                LlmstripError::ConfigParse { .. }
+                | LlmstripError::ConfigInvalid(_)
+                | LlmstripError::InvalidRule(_) => exit_code::CONFIG_ERROR,
                 _ => exit_code::IO_ERROR,
             };
             process::exit(code);
@@ -320,7 +320,7 @@ impl Formatter {
                 let had_findings = !findings.is_empty();
                 let report = build_json_report(&findings, &mode, filename.as_deref());
                 let json =
-                    serde_json::to_string_pretty(&report).map_err(|e| UnaiError::FileWrite {
+                    serde_json::to_string_pretty(&report).map_err(|e| LlmstripError::FileWrite {
                         path: args.output.as_deref().unwrap_or("<stdout>").into(),
                         source: std::io::Error::other(e.to_string()),
                     })?;
@@ -383,14 +383,14 @@ fn render_diff(
     if diff_output.is_empty() {
         let fixable = findings.iter().filter(|f| f.replacement.is_some()).count();
         if !had_findings {
-            eprintln!("unai: no findings");
+            eprintln!("llmstrip: no findings");
         } else if fixable == 0 {
             eprintln!(
-                "unai: {} finding(s), none auto-fixable (run --report to see them)",
+                "llmstrip: {} finding(s), none auto-fixable (run --report to see them)",
                 findings.len()
             );
         } else {
-            eprintln!("unai: no changes");
+            eprintln!("llmstrip: no changes");
         }
     } else {
         write_output(&diff_output, output)?;
@@ -406,14 +406,14 @@ fn run(args: Args) -> Result<bool> {
 fn read_input(file_arg: &Option<String>) -> Result<(String, Option<String>)> {
     match file_arg {
         Some(path) => {
-            let meta = fs::metadata(path).map_err(|source| UnaiError::FileRead {
+            let meta = fs::metadata(path).map_err(|source| LlmstripError::FileRead {
                 path: path.into(),
                 source,
             })?;
             if meta.len() > MAX_STDIN_BYTES as u64 {
-                return Err(UnaiError::FileTooLarge { path: path.into() });
+                return Err(LlmstripError::FileTooLarge { path: path.into() });
             }
-            let content = fs::read_to_string(path).map_err(|source| UnaiError::FileRead {
+            let content = fs::read_to_string(path).map_err(|source| LlmstripError::FileRead {
                 path: path.into(),
                 source,
             })?;
@@ -429,11 +429,11 @@ fn read_input(file_arg: &Option<String>) -> Result<(String, Option<String>)> {
             io::stdin()
                 .take(MAX_STDIN_BYTES as u64 + 1)
                 .read_to_end(&mut buf)
-                .map_err(|source| UnaiError::StdinRead { source })?;
+                .map_err(|source| LlmstripError::StdinRead { source })?;
             if buf.len() > MAX_STDIN_BYTES {
-                return Err(UnaiError::StdinTooLarge);
+                return Err(LlmstripError::StdinTooLarge);
             }
-            let content = String::from_utf8(buf).map_err(|_| UnaiError::StdinRead {
+            let content = String::from_utf8(buf).map_err(|_| LlmstripError::StdinRead {
                 source: std::io::Error::new(
                     std::io::ErrorKind::InvalidData,
                     "stdin is not valid UTF-8",
@@ -454,7 +454,7 @@ fn resolve_mode(mode_arg: &ModeArg, filename: Option<&str>, content: &str) -> Mo
 
 fn parse_code_rules(raw: &[String]) -> Result<Vec<CodeRule>> {
     raw.iter()
-        .map(|s| s.parse::<CodeRule>().map_err(UnaiError::InvalidRule))
+        .map(|s| s.parse::<CodeRule>().map_err(LlmstripError::InvalidRule))
         .collect()
 }
 

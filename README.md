@@ -1,9 +1,9 @@
-# unai — humanize AI-generated text and code
+# llmstrip — humanize AI-generated text and code
 
-AI writes like AI. unai fixes that.
+AI writes like AI. llmstrip fixes that.
 
 ```bash
-$ echo "Certainly! Let me delve into this comprehensive topic." | unai
+$ echo "Certainly! Let me delve into this comprehensive topic." | llmstrip
 Let me explore this thorough topic.
 ```
 
@@ -11,11 +11,11 @@ You know the patterns when you read them: *Certainly!*, *leveraging*, *delve*, *
 *it is worth noting*. Every model writes this way. RLHF bakes it in — human raters reward
 formal-sounding output, so models overfit to a vocabulary that sounds polished but reads robotic.
 
-`unai` is a **CLI humanizer for AI text and code**. It strips those patterns out, replaces
+`llmstrip` is a **CLI humanizer for AI text and code**. It strips those patterns out, replaces
 what it can automatically, and flags the rest. Pipe it into your workflow and your output
 reads like a person wrote it — not a chatbot trying to sound helpful.
 
-Unlike web-based AI humanizers, unai is **deterministic**: same input, same output, every time.
+Unlike web-based AI humanizers, llmstrip is **deterministic**: same input, same output, every time.
 No cloud. No API calls. No model in the loop. Just regex rules grounded in corpus data, fast
 enough to run on every keystroke.
 
@@ -37,57 +37,44 @@ Everything in one binary. No config files. No dependencies.
 
 ### Prebuilt binary (fastest)
 
-Download from [GitHub Releases](https://github.com/HugoLopes45/unai/releases/latest):
+Download from [GitHub Releases](https://github.com/HugoLopes45/llmstrip/releases/latest):
 
 | Platform | File |
 |----------|------|
-| Linux x86_64 | `unai-v*-x86_64-unknown-linux-gnu.tar.gz` |
-| Linux arm64 | `unai-v*-aarch64-unknown-linux-gnu.tar.gz` |
-| macOS x86_64 | `unai-v*-x86_64-apple-darwin.tar.gz` |
-| macOS arm64 (M1/M2/M3) | `unai-v*-aarch64-apple-darwin.tar.gz` |
-| Windows | `unai-v*-x86_64-pc-windows-msvc.zip` |
+| Linux x86_64 | `llmstrip-v*-x86_64-unknown-linux-gnu.tar.gz` |
+| Linux arm64 | `llmstrip-v*-aarch64-unknown-linux-gnu.tar.gz` |
+| macOS x86_64 | `llmstrip-v*-x86_64-apple-darwin.tar.gz` |
+| macOS arm64 (M1/M2/M3) | `llmstrip-v*-aarch64-apple-darwin.tar.gz` |
+| Windows | `llmstrip-v*-x86_64-pc-windows-msvc.zip` |
 
-Extract and put `unai` anywhere in your `$PATH`.
+Extract and put `llmstrip` anywhere in your `$PATH`.
 
-### From crates.io
-
-```bash
-cargo install unai
-```
-
-Requires Rust 1.75+. The binary ends up at `~/.cargo/bin/unai`.
-
-No Rust? One line:
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-```
-
-Then `cargo install unai`.
-
-### From source
+### From source (recommended)
 
 ```bash
-git clone https://github.com/HugoLopes45/unai
-cd unai
+git clone https://github.com/HugoLopes45/llmstrip
+cd llmstrip
 make install
 ```
+
+Requires Rust 1.82+. The binary ends up at `~/.cargo/bin/llmstrip`.
 
 ### Claude Code skill
 
 ```bash
-mkdir -p ~/.claude/skills/unai
-curl -sL https://raw.githubusercontent.com/HugoLopes45/unai/main/prompts/claude-code.md \
-  > ~/.claude/skills/unai/SKILL.md
+mkdir -p ~/.claude/skills/llmstrip
+curl -sL https://raw.githubusercontent.com/HugoLopes45/llmstrip/main/prompts/claude-code.md \
+  > ~/.claude/skills/llmstrip/SKILL.md
 ```
 
-Type `/unai` in any Claude Code session to humanize the current file or selection.
+Type `/llmstrip` in any Claude Code session to humanize the current file or selection.
 
 Or from the repo: `make install-skill`
 
 ### Cursor
 
 ```bash
-make install-cursor   # copies prompts/cursor.mdc → .cursor/rules/unai.mdc
+make install-cursor   # copies prompts/cursor.mdc → .cursor/rules/llmstrip.mdc
 ```
 
 Cursor picks up the rules on every generation in that project.
@@ -100,13 +87,13 @@ The `agents.md` prompt works with any tool that reads AGENTS.md-style files. One
 |------|---------|-------------|
 | opencode | `make install-opencode` | `~/.config/opencode/AGENTS.md` |
 | OpenAI Codex CLI | `make install-codex` | `~/.codex/AGENTS.md` |
-| Windsurf | `make install-windsurf` | `.windsurf/rules/unai.md` |
+| Windsurf | `make install-windsurf` | `.windsurf/rules/llmstrip.md` |
 | Zed | `make install-zed` | `.rules` |
 | GitHub Copilot | `make install-copilot` | `.github/copilot-instructions.md` |
 | Cline | `make install-cline` | `.clinerules` |
 | Amp | `make install-amp` | `AGENTS.md` (project root) |
-| Amazon Q | `make install-amazonq` | `.amazonq/rules/unai.md` |
-| Continue.dev | `make install-continue` | `.continue/rules/unai.md` |
+| Amazon Q | `make install-amazonq` | `.amazonq/rules/llmstrip.md` |
+| Continue.dev | `make install-continue` | `.continue/rules/llmstrip.md` |
 
 Only `install-opencode` and `install-codex` write to global config paths (`~`). All other targets write project-local files into your current directory — add them to `.gitignore` if you don't want to share them with your team.
 
@@ -141,15 +128,15 @@ Copy `prompts/system-prompt.md` into your system prompt. Done.
 ### Clean text and move on
 
 ```bash
-# pipe through unai, get humanized text back
-echo "Certainly! We should utilize this approach." | unai
+# pipe through llmstrip, get humanized text back
+echo "Certainly! We should utilize this approach." | llmstrip
 # → "We should use this approach."
 
 # humanize a file
-unai draft.md > draft-clean.md
+llmstrip draft.md > draft-clean.md
 
 # overwrite in place
-unai draft.md | sponge draft.md
+llmstrip draft.md | sponge draft.md
 ```
 
 Only patterns with an auto-fix get replaced. Everything else passes through unchanged.
@@ -160,10 +147,10 @@ Use `--report` to see what was flagged but couldn't be auto-fixed.
 Inspect findings without changing anything. Every finding cites the corpus study that measured it.
 
 ```bash
-unai --report draft.md
+llmstrip --report draft.md
 
 # high-priority only
-unai --report --min-severity high draft.md
+llmstrip --report --min-severity high draft.md
 ```
 
 ```
@@ -192,7 +179,7 @@ LOW (3)
 ### `--diff` — preview changes before applying them
 
 ```bash
-unai --diff draft.md
+llmstrip --diff draft.md
 ```
 
 ```diff
@@ -212,7 +199,7 @@ Run `--report` alongside to see the full picture.
 ### `--dry-run` — list every change before applying
 
 ```bash
-unai --dry-run draft.md
+llmstrip --dry-run draft.md
 ```
 
 ```
@@ -232,7 +219,7 @@ Original text prints unchanged after the list — safe to pipe elsewhere.
 ### `--annotate` — mark findings inline
 
 ```bash
-unai --annotate draft.md
+llmstrip --annotate draft.md
 ```
 
 Prints each line, with finding markers at the exact column on stderr.
@@ -242,13 +229,13 @@ Good for spotting where the patterns cluster in a longer document.
 
 ```bash
 # explicit code mode
-unai --mode code --report service.py
+llmstrip --mode code --report service.py
 
 # only flag naming and comments
-unai --mode code --rules naming,comments --report service.ts
+llmstrip --mode code --rules naming,comments --report service.ts
 
 # docstrings only
-unai --mode code --rules docstrings --report api.go
+llmstrip --mode code --rules docstrings --report api.go
 ```
 
 Available `--rules` values: `comments`, `naming`, `commits`, `docstrings`, `tests`, `errors`, `api`
@@ -273,14 +260,14 @@ LOW    line 3: Over-explaining comment: states what the code already shows
 
 ### Humanize commit messages
 
-unai fires commit-specific rules automatically on `COMMIT_EDITMSG` and `MERGE_MSG` files.
+llmstrip fires commit-specific rules automatically on `COMMIT_EDITMSG` and `MERGE_MSG` files.
 
 ```bash
 # check a commit message
-unai --report COMMIT_EDITMSG
+llmstrip --report COMMIT_EDITMSG
 
 # pipe one through
-echo "Added new authentication feature" | unai --mode code --rules commits --report
+echo "Added new authentication feature" | llmstrip --mode code --rules commits --report
 # HIGH: Past tense in commit subject — use imperative mood ('add' not 'added')
 ```
 
@@ -298,22 +285,22 @@ echo "Added new authentication feature" | unai --mode code --rules commits --rep
 Filter with `--min-severity`:
 
 ```bash
-unai --report --min-severity high draft.md   # High + Critical only
-unai --report --min-severity critical post.md  # Critical only
+llmstrip --report --min-severity high draft.md   # High + Critical only
+llmstrip --report --min-severity critical post.md  # Critical only
 ```
 
 ---
 
 ## Git hooks
 
-Drop unai into your commit flow and catch LLM-isms before they land.
+Drop llmstrip into your commit flow and catch LLM-isms before they land.
 
 **Non-blocking (report only):**
 
 ```bash
 # .git/hooks/commit-msg
 #!/bin/sh
-unai --mode code --rules commits --report --min-severity high "$1"
+llmstrip --mode code --rules commits --report --min-severity high "$1"
 ```
 
 **Blocking (reject bad commit messages):**
@@ -321,7 +308,7 @@ unai --mode code --rules commits --report --min-severity high "$1"
 ```bash
 # .git/hooks/commit-msg
 #!/bin/sh
-findings=$(unai --mode code --rules commits --report --min-severity high "$1" 2>&1)
+findings=$(llmstrip --mode code --rules commits --report --min-severity high "$1" 2>&1)
 if echo "$findings" | grep -q "finding(s)"; then
   echo "$findings" >&2
   echo "" >&2
@@ -365,7 +352,7 @@ chmod +x .git/hooks/commit-msg
 
 137 patterns across 9 rule files. [Browse them in `rules/`](rules/).
 
-### What unai doesn't touch
+### What llmstrip doesn't touch
 
 - Content inside fenced code blocks in Markdown (` ``` ` fences)
 - Inline backtick spans (`` `code` ``)
@@ -379,24 +366,24 @@ chmod +x .git/hooks/commit-msg
 Most AI text humanizers are web apps: you paste text, a model rewrites it, you copy the output.
 That works for one-off documents. It breaks for everything else.
 
-unai is a **Unix filter**. It composes:
+llmstrip is a **Unix filter**. It composes:
 
 ```bash
 # humanize every markdown file in a repo
-find . -name "*.md" | xargs -I{} sh -c 'unai {} | sponge {}'
+find . -name "*.md" | xargs -I{} sh -c 'llmstrip {} | sponge {}'
 
 # gate a CI pipeline on AI writing quality
-unai --report --min-severity high release-notes.md || exit 1
+llmstrip --report --min-severity high release-notes.md || exit 1
 
 # pre-commit hook that blocks AI-written commit messages
-unai --mode code --rules commits --report COMMIT_EDITMSG
+llmstrip --mode code --rules commits --report COMMIT_EDITMSG
 
 # integrate into your editor's format-on-save
-unai % | sponge %
+llmstrip % | sponge %
 ```
 
 Other humanizers can't do any of this. They're also non-deterministic: the same sentence
-in, different output each run. unai gives you the same result every time — which means you
+in, different output each run. llmstrip gives you the same result every time — which means you
 can review diffs, write tests, and trust it in automation.
 
 **Zero dependencies.** No Python runtime. No Node. No Docker. One static binary, ~2MB.
@@ -417,7 +404,7 @@ A person would say *using* instead of *leveraging*. A person's code comment
 would say `# don't touch this — it works and I don't know why` instead of
 `# This function serves as the core processing handler for user data operations`.
 
-`unai` draws a line. Write like yourself, not like a chatbot trying to sound helpful.
+`llmstrip` draws a line. Write like yourself, not like a chatbot trying to sound helpful.
 
 ---
 

@@ -51,7 +51,7 @@ All changes to this project are documented here.
 
 Initial release.
 
-- CLI: `unai` reads from stdin, flags LLM-isms, exits non-zero on matches
+- CLI: `llmstrip` reads from stdin, flags LLM-isms, exits non-zero on matches
 - `--fix` flag applies replacements in place
 - `--only <category>` filters to a single rule category
 - `--json` outputs structured diagnostics for editor integrations

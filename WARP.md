@@ -1,17 +1,17 @@
-# unai — context for Warp AI
+# llmstrip — context for Warp AI
 
 This repo is a tool that removes LLM-isms from text and code. It works as:
-- a Claude Code skill (`/unai`)
-- a Cursor rule (`.cursor/rules/unai.mdc`)
+- a Claude Code skill (`/llmstrip`)
+- a Cursor rule (`.cursor/rules/llmstrip.mdc`)
 - an OpenCode prompt
-- a Rust CLI (`echo "text" | unai`)
+- a Rust CLI (`echo "text" | llmstrip`)
 
 ## Key files
 
 | File | Purpose |
 |------|---------|
-| `prompts/claude-code.md` | Claude Code skill — copy to `~/.claude/skills/unai/SKILL.md` |
-| `prompts/cursor.mdc` | Cursor rule — copy to `.cursor/rules/unai.mdc` |
+| `prompts/claude-code.md` | Claude Code skill — copy to `~/.claude/skills/llmstrip/SKILL.md` |
+| `prompts/cursor.mdc` | Cursor rule — copy to `.cursor/rules/llmstrip.mdc` |
 | `prompts/opencode.md` | OpenCode prompt |
 | `prompts/system-prompt.md` | Universal system prompt for any LLM |
 | `rules/` | 9 rule files, 137 patterns with before/after examples |

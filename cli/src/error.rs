@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum UnaiError {
+pub enum LlmstripError {
     #[error("Cannot read '{path}': {source}")]
     FileRead {
         path: PathBuf,
@@ -43,9 +43,9 @@ pub enum UnaiError {
     },
 }
 
-pub type Result<T> = std::result::Result<T, UnaiError>;
+pub type Result<T> = std::result::Result<T, LlmstripError>;
 
-/// Exit codes for unai.
+/// Exit codes for llmstrip.
 /// 0  = success (no findings, or findings auto-fixed)
 /// 1  = I/O error
 /// 2  = config / rule parse error

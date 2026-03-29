@@ -4,9 +4,9 @@ about: Something is broken or behaving unexpectedly
 labels: bug
 ---
 
-## unai version
+## llmstrip version
 
-<!-- Output of: unai --version -->
+<!-- Output of: llmstrip --version -->
 
 ## Input that triggered the bug
 
@@ -17,7 +17,7 @@ labels: bug
 ## Command used
 
 ```bash
-<!-- e.g. echo "..." | unai --report -->
+<!-- e.g. echo "..." | llmstrip --report -->
 ```
 
 ## Expected behaviour

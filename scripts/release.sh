@@ -11,7 +11,7 @@ set -euo pipefail
 
 CARGO_TOML="cli/Cargo.toml"
 CHANGELOG="CHANGELOG.md"
-BINARY_NAME="unai"
+BINARY_NAME="llmstrip"
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 

@@ -44,14 +44,14 @@ tag:
 	  -m "Release v$(shell grep '^version' cli/Cargo.toml | head -1 | cut -d'"' -f2)"
 
 install-skill:
-	mkdir -p ~/.claude/skills/unai
-	cp prompts/claude-code.md ~/.claude/skills/unai/SKILL.md
-	@echo "Skill installed. Use /unai in Claude Code."
+	mkdir -p ~/.claude/skills/llmstrip
+	cp prompts/claude-code.md ~/.claude/skills/llmstrip/SKILL.md
+	@echo "Skill installed. Use /llmstrip in Claude Code."
 
 install-cursor:
 	mkdir -p .cursor/rules
-	cp prompts/cursor.mdc .cursor/rules/unai.mdc
-	@echo "Cursor rule installed at .cursor/rules/unai.mdc"
+	cp prompts/cursor.mdc .cursor/rules/llmstrip.mdc
+	@echo "Cursor rule installed at .cursor/rules/llmstrip.mdc"
 
 install-opencode:
 	mkdir -p ~/.config/opencode
@@ -65,8 +65,8 @@ install-codex:
 
 install-windsurf:
 	mkdir -p .windsurf/rules
-	cp prompts/agents.md .windsurf/rules/unai.md
-	@echo "Windsurf: installed at .windsurf/rules/unai.md"
+	cp prompts/agents.md .windsurf/rules/llmstrip.md
+	@echo "Windsurf: installed at .windsurf/rules/llmstrip.md"
 
 install-zed:
 	cp prompts/agents.md .rules
@@ -87,13 +87,13 @@ install-amp:
 
 install-amazonq:
 	mkdir -p .amazonq/rules
-	cp prompts/agents.md .amazonq/rules/unai.md
-	@echo "Amazon Q: installed at .amazonq/rules/unai.md"
+	cp prompts/agents.md .amazonq/rules/llmstrip.md
+	@echo "Amazon Q: installed at .amazonq/rules/llmstrip.md"
 
 install-continue:
 	mkdir -p .continue/rules
-	cp prompts/agents.md .continue/rules/unai.md
-	@echo "Continue.dev: installed at .continue/rules/unai.md"
+	cp prompts/agents.md .continue/rules/llmstrip.md
+	@echo "Continue.dev: installed at .continue/rules/llmstrip.md"
 
 install-aider:
 	cp prompts/agents.md CONVENTIONS.md

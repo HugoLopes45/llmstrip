@@ -71,8 +71,8 @@ for target in "${TARGETS[@]}"; do
   # Apple targets: use regular cargo (no zig needed — SDK available natively)
   if [[ "$target" == *"apple"* ]]; then
     if cargo build --"$PROFILE" --manifest-path "$MANIFEST" --target "$target" 2>&1; then
-      bin="cli/target/$target/$PROFILE/unai"
-      asset="${OUT_DIR}/unai-v${VERSION}-${target}.tar.gz"
+      bin="cli/target/$target/$PROFILE/llmstrip"
+      asset="${OUT_DIR}/llmstrip-v${VERSION}-${target}.tar.gz"
       tar czf "$asset" -C "$(dirname "$bin")" "$(basename "$bin")"
       echo "  → $asset"
     else
@@ -82,8 +82,8 @@ for target in "${TARGETS[@]}"; do
   else
     # Linux targets: use cargo-zigbuild for cross-compilation
     if cargo zigbuild --"$PROFILE" --manifest-path "$MANIFEST" --target "$target" 2>&1; then
-      bin="cli/target/$target/$PROFILE/unai"
-      asset="${OUT_DIR}/unai-v${VERSION}-${target}.tar.gz"
+      bin="cli/target/$target/$PROFILE/llmstrip"
+      asset="${OUT_DIR}/llmstrip-v${VERSION}-${target}.tar.gz"
       tar czf "$asset" -C "$(dirname "$bin")" "$(basename "$bin")"
       echo "  → $asset"
     else
@@ -95,7 +95,7 @@ done
 
 echo ""
 echo "── results ──────────────────────────────────────────────"
-ls -lh "$OUT_DIR"/unai-v"${VERSION}"-*.tar.gz 2>/dev/null || true
+ls -lh "$OUT_DIR"/llmstrip-v"${VERSION}"-*.tar.gz 2>/dev/null || true
 
 if [[ ${#FAILED[@]} -gt 0 ]]; then
   echo ""

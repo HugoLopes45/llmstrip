@@ -24,5 +24,5 @@ labels: false-positive
 
 ## Context
 
-- unai version (`unai --version`):
+- llmstrip version (`llmstrip --version`):
 - Mode used (`--mode text`, `--mode code`, etc.):

@@ -1,4 +1,4 @@
-/// End-to-end integration tests that invoke the compiled `unai` binary
+/// End-to-end integration tests that invoke the compiled `llmstrip` binary
 /// via `std::process::Command`.
 ///
 /// Run with: `cargo test --manifest-path cli/Cargo.toml --test integration`
@@ -11,10 +11,10 @@ fn write_temp_config(content: &str) -> tempfile::NamedTempFile {
     f
 }
 
-/// Invoke the unai binary with the given arguments, feeding `stdin` to it.
+/// Invoke the llmstrip binary with the given arguments, feeding `stdin` to it.
 /// Returns `(stdout, stderr, exit_code)`.
-fn run_unai(args: &[&str], stdin: &str) -> (String, String, i32) {
-    let binary = env!("CARGO_BIN_EXE_unai");
+fn run_llmstrip(args: &[&str], stdin: &str) -> (String, String, i32) {
+    let binary = env!("CARGO_BIN_EXE_llmstrip");
 
     let mut child = Command::new(binary)
         .args(args)
@@ -22,7 +22,7 @@ fn run_unai(args: &[&str], stdin: &str) -> (String, String, i32) {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .expect("failed to spawn unai binary");
+        .expect("failed to spawn llmstrip binary");
 
     // Ignore BrokenPipe: the process may exit before consuming all stdin (e.g. config errors).
     if let Some(mut handle) = child.stdin.take() {
@@ -42,7 +42,7 @@ fn run_unai(args: &[&str], stdin: &str) -> (String, String, i32) {
 #[test]
 fn pipe_text_replaces_utilize() {
     let input = "We should utilize this approach.\n";
-    let (stdout, _stderr, code) = run_unai(&[], input);
+    let (stdout, _stderr, code) = run_llmstrip(&[], input);
     assert_eq!(code, 0, "exit code should be 0");
     assert!(
         !stdout.contains("utilize"),
@@ -60,7 +60,7 @@ fn pipe_text_replaces_utilize() {
 #[test]
 fn report_mode_shows_severity() {
     let input = "Certainly! Let me delve into that.\n";
-    let (_stdout, stderr, _code) = run_unai(&["--report"], input);
+    let (_stdout, stderr, _code) = run_llmstrip(&["--report"], input);
     assert!(
         stderr.contains("CRITICAL"),
         "--report should show CRITICAL severity, got: {:?}",
@@ -72,7 +72,7 @@ fn report_mode_shows_severity() {
 #[test]
 fn diff_mode_unified_format() {
     let input = "Certainly! I would be happy to utilize this.\n";
-    let (stdout, _stderr, _code) = run_unai(&["--diff"], input);
+    let (stdout, _stderr, _code) = run_llmstrip(&["--diff"], input);
     assert!(
         stdout.starts_with("---"),
         "--diff output should start with ---, got: {:?}",
@@ -85,7 +85,7 @@ fn diff_mode_unified_format() {
 fn diff_mode_no_fixable_findings_message() {
     // "meticulous" is High but has no auto-fix replacement.
     let input = "The meticulous review was completed.\n";
-    let (_stdout, stderr, _code) = run_unai(&["--diff"], input);
+    let (_stdout, stderr, _code) = run_llmstrip(&["--diff"], input);
     assert!(
         stderr.contains("none auto-fixable"),
         "should report none auto-fixable when no replacements exist, got: {:?}",
@@ -97,7 +97,7 @@ fn diff_mode_no_fixable_findings_message() {
 #[test]
 fn mode_code_applies_naming_rules() {
     let input = "let userManager = new UserManager();\n";
-    let (_stdout, stderr, _code) = run_unai(&["--mode", "code", "--report"], input);
+    let (_stdout, stderr, _code) = run_llmstrip(&["--mode", "code", "--report"], input);
     assert!(
         stderr.to_lowercase().contains("manager") || stderr.to_lowercase().contains("anemic"),
         "--mode code should flag naming suffix, got: {:?}",
@@ -110,7 +110,7 @@ fn mode_code_applies_naming_rules() {
 fn min_severity_high_filters_low() {
     // "in order to" is Low severity; "Certainly!" is Critical.
     let input = "Certainly! In order to proceed.\n";
-    let (_stdout, stderr, _code) = run_unai(&["--report", "--min-severity", "high"], input);
+    let (_stdout, stderr, _code) = run_llmstrip(&["--report", "--min-severity", "high"], input);
     assert!(
         stderr.contains("CRITICAL"),
         "should still show CRITICAL findings, got: {:?}",
@@ -127,7 +127,7 @@ fn min_severity_high_filters_low() {
 #[test]
 fn fail_flag_exits_10_with_findings() {
     let input = "Certainly! Let me delve into this.\n";
-    let (_stdout, _stderr, code) = run_unai(&["--fail", "--report"], input);
+    let (_stdout, _stderr, code) = run_llmstrip(&["--fail", "--report"], input);
     assert_eq!(
         code, 10,
         "--fail should exit 10 when findings exist, got: {}",
@@ -139,7 +139,7 @@ fn fail_flag_exits_10_with_findings() {
 #[test]
 fn fail_flag_exits_0_without_findings() {
     let input = "The cat sat on the mat.\n";
-    let (_stdout, _stderr, code) = run_unai(&["--fail"], input);
+    let (_stdout, _stderr, code) = run_llmstrip(&["--fail"], input);
     assert_eq!(
         code, 0,
         "--fail should exit 0 when no findings, got: {}",
@@ -151,7 +151,7 @@ fn fail_flag_exits_0_without_findings() {
 #[test]
 fn format_json_valid_output() {
     let input = "Certainly! We should utilize this.\n";
-    let (stdout, _stderr, code) = run_unai(&["--format", "json"], input);
+    let (stdout, _stderr, code) = run_llmstrip(&["--format", "json"], input);
     assert_eq!(code, 0);
     let parsed: serde_json::Value =
         serde_json::from_str(&stdout).expect("--format json should output valid JSON");
@@ -173,7 +173,7 @@ fn format_json_valid_output() {
 #[test]
 fn format_json_summary_counts() {
     let input = "Certainly!\n";
-    let (stdout, _stderr, _code) = run_unai(&["--format", "json"], input);
+    let (stdout, _stderr, _code) = run_llmstrip(&["--format", "json"], input);
     let parsed: serde_json::Value = serde_json::from_str(&stdout).unwrap();
     let total = parsed["summary"]["total"].as_u64().unwrap_or(0);
     assert!(total > 0, "summary.total should be > 0 for 'Certainly!'");
@@ -189,7 +189,7 @@ fn format_json_summary_counts() {
 fn ignore_directive_suppresses_findings() {
     // First verify the finding WOULD fire without directive
     let plain_input = "Certainly! Let me delve.\n";
-    let (_stdout, stderr_plain, _code) = run_unai(&["--report"], plain_input);
+    let (_stdout, stderr_plain, _code) = run_llmstrip(&["--report"], plain_input);
     assert!(
         stderr_plain.contains("CRITICAL"),
         "baseline: CRITICAL should fire without ignore directive, got: {:?}",
@@ -197,8 +197,8 @@ fn ignore_directive_suppresses_findings() {
     );
 
     // Now verify the directive suppresses it
-    let input = "Good prose here.\n<!-- unai-ignore -->\nCertainly! Let me delve.\n<!-- /unai-ignore -->\nMore good prose.\n";
-    let (_stdout, stderr, _code) = run_unai(&["--report"], input);
+    let input = "Good prose here.\n<!-- llmstrip-ignore -->\nCertainly! Let me delve.\n<!-- /llmstrip-ignore -->\nMore good prose.\n";
+    let (_stdout, stderr, _code) = run_llmstrip(&["--report"], input);
     assert!(
         !stderr.contains("CRITICAL"),
         "CRITICAL findings on ignored lines should be suppressed, got: {:?}",
@@ -215,7 +215,7 @@ fn ignore_directive_suppresses_findings() {
 #[test]
 fn color_never_no_ansi_in_report() {
     let input = "Certainly!\n";
-    let (_stdout, stderr, _code) = run_unai(&["--report", "--color", "never"], input);
+    let (_stdout, stderr, _code) = run_llmstrip(&["--report", "--color", "never"], input);
     assert!(
         !stderr.contains("\x1b["),
         "--color never should not emit ANSI escapes, got: {:?}",
@@ -234,11 +234,11 @@ fn commit_editmsg_fires_commit_rules() {
     writeln!(f, "Added new feature").expect("write commit msg");
     drop(f);
 
-    let binary = env!("CARGO_BIN_EXE_unai");
+    let binary = env!("CARGO_BIN_EXE_llmstrip");
     let output = Command::new(binary)
         .args(["--report", path.to_str().unwrap()])
         .output()
-        .expect("failed to run unai on COMMIT_EDITMSG");
+        .expect("failed to run llmstrip on COMMIT_EDITMSG");
 
     let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
     // `dir` drops here, cleaning up the temp directory automatically.
@@ -260,7 +260,7 @@ severity = "critical"
 enabled = false
 "#;
     let cfg = write_temp_config(toml);
-    let (_stdout, stderr, code) = run_unai(
+    let (_stdout, stderr, code) = run_llmstrip(
         &["--report", "--config", cfg.path().to_str().unwrap()],
         "We should synergize our efforts.\n",
     );
@@ -280,7 +280,7 @@ fn ignore_words_suppresses_findings() {
 words = ["certainly!"]
 "#;
     let cfg = write_temp_config(toml);
-    let (_stdout, stderr, _code) = run_unai(
+    let (_stdout, stderr, _code) = run_llmstrip(
         &["--report", "--config", cfg.path().to_str().unwrap()],
         "Certainly!\n",
     );
@@ -296,7 +296,7 @@ words = ["certainly!"]
 fn fail_with_min_severity_high_exits_0_for_low_only() {
     // "moreover" and "furthermore" are Low severity
     let input = "Moreover, furthermore.\n";
-    let (_stdout, _stderr, code) = run_unai(&["--fail", "--min-severity", "high"], input);
+    let (_stdout, _stderr, code) = run_llmstrip(&["--fail", "--min-severity", "high"], input);
     assert_eq!(
         code, 0,
         "--fail --min-severity high should exit 0 when only Low findings exist, got: {}",
@@ -310,7 +310,7 @@ fn invalid_config_exits_2() {
     let toml = "version = 99\n";
     let cfg = write_temp_config(toml);
     let (_stdout, _stderr, code) =
-        run_unai(&["--config", cfg.path().to_str().unwrap()], "some input\n");
+        run_llmstrip(&["--config", cfg.path().to_str().unwrap()], "some input\n");
     assert_eq!(
         code, 2,
         "invalid config should exit with code 2, got: {}",
@@ -323,7 +323,7 @@ fn invalid_config_exits_2() {
 fn code_mode_non_commit_file_no_commit_rules() {
     // "Added feature description" would trigger imperative-mood rule in commit mode
     let input = "Added feature description\n";
-    let (_stdout, stderr, _code) = run_unai(&["--mode", "code", "--report"], input);
+    let (_stdout, stderr, _code) = run_llmstrip(&["--mode", "code", "--report"], input);
     assert!(
         !stderr.contains("imperative mood"),
         "code mode on non-commit file should not fire commit rules, got: {:?}",
@@ -335,7 +335,7 @@ fn code_mode_non_commit_file_no_commit_rules() {
 #[test]
 fn color_always_emits_ansi_in_report() {
     let input = "Certainly!\n";
-    let (_stdout, stderr, _code) = run_unai(&["--report", "--color", "always"], input);
+    let (_stdout, stderr, _code) = run_llmstrip(&["--report", "--color", "always"], input);
     assert!(
         stderr.contains("\x1b["),
         "--color always should emit ANSI escapes, got: {:?}",
@@ -347,7 +347,7 @@ fn color_always_emits_ansi_in_report() {
 #[test]
 fn format_json_fail_exits_10_with_findings() {
     let input = "Certainly!\n";
-    let (stdout, _stderr, code) = run_unai(&["--format", "json", "--fail"], input);
+    let (stdout, _stderr, code) = run_llmstrip(&["--format", "json", "--fail"], input);
     assert_eq!(
         code, 10,
         "--format json --fail should exit 10 when findings exist, got: {}",

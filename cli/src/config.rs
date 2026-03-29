@@ -3,7 +3,7 @@ use std::path::Path;
 
 use serde::Deserialize;
 
-use crate::error::{Result, UnaiError};
+use crate::error::{Result, LlmstripError};
 
 /// Maximum config file size. Configs larger than this are rejected before parsing.
 const MAX_CONFIG_BYTES: u64 = 1024 * 1024; // 1 MiB
@@ -43,22 +43,22 @@ pub struct IgnoreConfig {
 
 impl Config {
     pub fn load(path: &Path) -> Result<Config> {
-        let mut file = std::fs::File::open(path).map_err(|source| UnaiError::FileRead {
+        let mut file = std::fs::File::open(path).map_err(|source| LlmstripError::FileRead {
             path: path.into(),
             source,
         })?;
         if file.metadata().map(|m| m.len()).unwrap_or(0) > MAX_CONFIG_BYTES {
-            return Err(UnaiError::ConfigInvalid(
+            return Err(LlmstripError::ConfigInvalid(
                 "config file exceeds 1 MiB size limit".to_string(),
             ));
         }
         let mut content = String::new();
         file.read_to_string(&mut content)
-            .map_err(|source| UnaiError::FileRead {
+            .map_err(|source| LlmstripError::FileRead {
                 path: path.into(),
                 source,
             })?;
-        let config: Config = toml::from_str(&content).map_err(|source| UnaiError::ConfigParse {
+        let config: Config = toml::from_str(&content).map_err(|source| LlmstripError::ConfigParse {
             path: path.into(),
             source: Box::new(source),
         })?;
@@ -67,10 +67,10 @@ impl Config {
     }
 
     pub fn load_from_cwd() -> Result<Option<Config>> {
-        let path = Path::new("unai.toml");
+        let path = Path::new("llmstrip.toml");
         match Config::load(path) {
             Ok(cfg) => Ok(Some(cfg)),
-            Err(UnaiError::FileRead { source, .. })
+            Err(LlmstripError::FileRead { source, .. })
                 if source.kind() == std::io::ErrorKind::NotFound =>
             {
                 Ok(None)
@@ -81,14 +81,14 @@ impl Config {
 
     fn validate(&self) -> Result<()> {
         if self.version != 1 {
-            return Err(UnaiError::ConfigInvalid(format!(
+            return Err(LlmstripError::ConfigInvalid(format!(
                 "unsupported version {}",
                 self.version
             )));
         }
         for rule in &self.rules {
             if rule.pattern.is_empty() || rule.pattern.trim().is_empty() {
-                return Err(UnaiError::ConfigInvalid(
+                return Err(LlmstripError::ConfigInvalid(
                     "rule pattern cannot be empty".to_string(),
                 ));
             }
@@ -96,7 +96,7 @@ impl Config {
                 match s.as_str() {
                     "critical" | "high" | "medium" | "low" => {}
                     _ => {
-                        return Err(UnaiError::ConfigInvalid(format!(
+                        return Err(LlmstripError::ConfigInvalid(format!(
                             "unknown severity '{}'; valid: critical, high, medium, low",
                             s
                         )));
@@ -193,7 +193,7 @@ files = ["docs/examples/**", "test/fixtures/**"]
 
     #[test]
     fn missing_file_returns_none() {
-        // load_from_cwd looks for ./unai.toml; run from a temp dir where it won't exist.
+        // load_from_cwd looks for ./llmstrip.toml; run from a temp dir where it won't exist.
         let _lock = CWD_LOCK.lock().unwrap();
         let tmp = tempfile::tempdir().unwrap();
         let original = std::env::current_dir().unwrap();
@@ -242,7 +242,7 @@ files = ["docs/examples/**", "test/fixtures/**"]
         assert!(err.to_string().contains("empty"), "got: {err}");
     }
 
-    // load_from_cwd success path — finds and loads a valid unai.toml from the working directory.
+    // load_from_cwd success path — finds and loads a valid llmstrip.toml from the working directory.
     #[test]
     fn load_from_cwd_success() {
         let _guard = CWD_LOCK.lock().unwrap();
@@ -250,7 +250,7 @@ files = ["docs/examples/**", "test/fixtures/**"]
         let tmp = tempfile::tempdir().unwrap();
         let original = std::env::current_dir().unwrap();
         write_temp_config("version = 1\n")
-            .persist(tmp.path().join("unai.toml"))
+            .persist(tmp.path().join("llmstrip.toml"))
             .unwrap();
         std::env::set_current_dir(tmp.path()).unwrap();
         let result = Config::load_from_cwd();

@@ -1,5 +1,5 @@
 ---
-name: unai
+name: llmstrip
 description: Remove LLM-isms from text and code
 ---
 

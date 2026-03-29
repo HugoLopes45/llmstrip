@@ -1,6 +1,6 @@
-# Adversarial Challenge — unai v0.2.0
+# Adversarial Challenge — llmstrip v0.2.0
 
-Results of running unai against its own source code and a corpus of LLM vs. human text.
+Results of running llmstrip against its own source code and a corpus of LLM vs. human text.
 Date: 2026-02-20.
 
 ---
@@ -9,17 +9,17 @@ Date: 2026-02-20.
 
 Commands:
 ```bash
-./cli/target/release/unai --mode code --report cli/src/rules.rs
-./cli/target/release/unai --mode code --report cli/src/main.rs
-./cli/target/release/unai --report README.md
-./cli/target/release/unai --report CONTRIBUTING.md
+./cli/target/release/llmstrip --mode code --report cli/src/rules.rs
+./cli/target/release/llmstrip --mode code --report cli/src/main.rs
+./cli/target/release/llmstrip --report README.md
+./cli/target/release/llmstrip --report CONTRIBUTING.md
 ```
 
 ### rules.rs — 38 findings (code mode)
 
 | Severity | Count | Root cause |
 |----------|-------|------------|
-| HIGH     | 27    | Section-divider comments (`// === ... ===`, `// --- ... ---`): unai flags these as noise-adding section headers. These are **deliberate false positives** — the test file intentionally includes patterns it tests, and the source uses dividers for readability. |
+| HIGH     | 27    | Section-divider comments (`// === ... ===`, `// --- ... ---`): llmstrip flags these as noise-adding section headers. These are **deliberate false positives** — the test file intentionally includes patterns it tests, and the source uses dividers for readability. |
 | MEDIUM   | 5     | `userDataObject`, `configurationSettings`, `errorMessageString`, `listOfUsers` appear in the test data for the naming rule — the rule fires on its own test fixtures. |
 | LOW      | 6     | The line `pub enum Severity {` is interpreted as a commit subject (commit-length single-line detection), a known edge case in commit rule heuristics. |
 
@@ -43,7 +43,7 @@ Commands:
 | MEDIUM   | `userDataObject` | Same as above — example text. |
 | LOW      | Long line flagged as over-explaining commit | Commit-heuristic applied to prose paragraph. |
 
-**Verdict:** README intentionally contains negative examples. A future improvement would be a `<!-- unai-ignore -->` directive for documentation.
+**Verdict:** README intentionally contains negative examples. A future improvement would be a `<!-- llmstrip-ignore -->` directive for documentation.
 
 ### CONTRIBUTING.md — 0 findings
 
@@ -99,7 +99,7 @@ The results below validate that the rules mechanically fire on their targets, bu
 
 ### The miss: llm_10.txt
 
-unai auto-detected llm_10.txt as `code` mode (commit detection path) because the file begins with
+llmstrip auto-detected llm_10.txt as `code` mode (commit detection path) because the file begins with
 "Of course!" — which resembles a single-line commit subject to the mode detector.
 With explicit `--mode text`, the file scores 12 findings including CRITICAL.
 
@@ -128,4 +128,4 @@ These are exactly the rules from Kobak 2025 and Juzek 2025 — the empirical bas
 
 2. **Section-divider rule FP on its own tests** (Low, known): `rules.rs` uses `// --- ... ---` dividers for test organization. The rule fires on its own test file. This is a correct detection of a borderline style choice, not a defect — but it's worth noting.
 
-3. **No exemption mechanism** (Enhancement): README intentionally quotes bad examples. A `<!-- unai-ignore -->` directive would let documentation include negative examples without false positives.
+3. **No exemption mechanism** (Enhancement): README intentionally quotes bad examples. A `<!-- llmstrip-ignore -->` directive would let documentation include negative examples without false positives.

@@ -1,4 +1,4 @@
-# unai — context for Cursor AI
+# llmstrip — context for Cursor AI
 
 This repo provides a Cursor rule that prevents LLM-isms in generated code and text.
 
@@ -6,7 +6,7 @@ This repo provides a Cursor rule that prevents LLM-isms in generated code and te
 
 ```bash
 # In your project directory:
-cp /path/to/unai/prompts/cursor.mdc .cursor/rules/unai.mdc
+cp /path/to/llmstrip/prompts/cursor.mdc .cursor/rules/llmstrip.mdc
 
 # Or from the repo:
 make install-cursor
