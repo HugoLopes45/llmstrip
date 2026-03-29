@@ -6,6 +6,13 @@ You may replace vague AI-generated claims with the concrete fact the author clea
 
 If two rules conflict, preserve the author's intended meaning over mechanical compliance with either rule.
 
+**Structural targets.** Beyond banned words, human writing differs from AI writing in these ways. Apply them throughout:
+- Vary sentence length. Every paragraph should have at least one sentence under 8 words.
+- Start sentences with subject-verb. No more than 2 sentences per paragraph should open with a prepositional or participial phrase ("By doing...", "Through careful...", "In order to...").
+- Use contractions in first-person text ("we've", "don't", "it's"). Expand only for deliberate emphasis.
+- Sentences may begin with "And", "But", or "So" — this is natural and correct.
+- Never end a paragraph with a forward-looking projection unless it names a specific date or deadline.
+
 ## Mode detection
 
 Determine the input type before applying rules:
@@ -76,9 +83,9 @@ Fix: name the challenge and the outcome. Delete the formula.
 
 These words and phrases have no parent rule above. Search for each one and delete or replace it.
 
-Words: `delve`, `endeavor`, `notably`, `ingrained`, `seamlessly`, `leveraging`, `cutting-edge`, `groundbreaking`
+Words: `delve`, `endeavor`, `notably`, `ingrained`, `seamlessly`, `leveraging`, `cutting-edge`, `groundbreaking`, `diligently`, `spearheaded`, `robust` (use "solid"), `innovative` (use "new"), `meticulous` (use "careful")
 
-Phrases: `"evolving landscape"`, `"streamline"` (use a concrete verb), `"utilize"` (use "use"), `"facilitate"` (use a simpler verb), `"commence"` (use "start"), `"subsequently"` (use "then"), `"in conclusion"`, `"moreover"`, `"furthermore"`
+Phrases: `"evolving landscape"`, `"streamline"` (use a concrete verb), `"utilize"` (use "use"), `"facilitate"` (use a simpler verb), `"commence"` (use "start"), `"subsequently"` (use "then"), `"in conclusion"`, `"moreover"`, `"furthermore"`, `"profound impact"`, `"iterative refinement"`, `"security posture"`, `"positions us well"`, `"truly excels"`, `"further strengthen"`
 
 Note: words like "pivotal", "vibrant", "testament", "robust", "innovative", "revolutionary", "comprehensive", "multifaceted", "crucial", "indelible", "underscore", "tapestry", "serves as a reminder", "stands as a testament", "it is worth noting", "it is important to note" are caught by Rules 1, 4, and 8 respectively. Apply those rules first; Rule 7 handles what they don't cover.
 
@@ -216,8 +223,12 @@ Multi-word constructions that add length without meaning. Replace or delete:
 - "due to the fact that" -> "because"
 - "it is worth noting that" -> delete or "note:"
 - "it is important to note that" -> delete or "note:"
+- "it should be noted that" -> delete or "note:"
 - "at the end of the day" -> delete
 - "with that said" -> delete
+- "in terms of" -> rewrite with the specific aspect named
+- "a wide range of" -> list what is actually included, or say "many"
+- "play a crucial role" -> name the role or delete
 
 - Before: "It is important to note that in order to deploy, you need to run the migration first."
 - After: "Run the migration before deploying."
@@ -239,6 +250,96 @@ Fix: delete any final paragraph whose sentences would be equally true of any oth
 
 - Before: "The future looks bright for this technology. Exciting times lie ahead as the ecosystem continues to grow and evolve."
 - After: [end on the last substantive point before this paragraph]
+
+**Rule 25. Compound clause addiction**
+
+AI attaches a subordinate clause to almost every sentence: "while maintaining", "ensuring that", "that enables", "allowing us to". This produces sentences that always resolve — no tension, no short punches.
+
+Fix: one sentence, one action. Break compound sentences at the coordinating conjunction or relative pronoun. Allow compound sentences only when the relationship between the two clauses is the point.
+
+- Before: "We've established a foundation that enables rapid feature development while maintaining the highest security standards."
+- After: "We set up OAuth 2.0. It lets us ship fast without weakening security."
+
+**Rule 26. Mini-essay paragraph**
+
+A single paragraph that has: thesis sentence (sentence 1), evidence sentences (middle), forward projection (final sentence). This is essay structure applied to paragraphs. Humans don't write this way outside of academic contexts.
+
+Fix: cut the thesis and forward-projection wrapper. Start with the first concrete fact. If the forward projection is vague, delete it; if it names a real plan with a date, move it inline.
+
+- Before: "The implementation of our auth system has had a profound impact. By adopting OAuth 2.0, we've enabled rapid development. Moving forward, we plan to integrate biometric auth."
+- After: "We shipped OAuth 2.0 last month. 50k requests/day, 99.97% uptime. Biometric auth is next — we're targeting Q3."
+
+**Rule 27. Sentence-initial transition saturation**
+
+When 3 or more sentences in a paragraph open with a prepositional or participial phrase ("By adopting...", "Through careful planning...", "In order to...", "Having established..."), the writing sounds automated. Humans start with subject-verb most of the time.
+
+Fix: rewrite so that at most 2 sentences per paragraph open with a prepositional phrase. Start the rest with the subject doing something.
+
+- Before: "By adopting this approach, we improved reliability. Through careful monitoring, we caught issues early. In doing so, we prevented downtime."
+- After: "We adopted this approach and improved reliability. Monitoring caught issues early. We prevented downtime."
+
+**Rule 28. Paired construction overuse**
+
+"Not only X but also Y", "both X and Y", "everything from X to Y" are rhetorical constructions that inflate the apparent scope of a claim. AI uses 2+ of these per paragraph. Engineers just list items.
+
+Fix: drop the rhetorical frame. Say what you mean directly.
+
+- Before: "The system handles everything from basic credential validation to complex multi-factor authentication flows, ensuring both backward compatibility and forward-looking flexibility."
+- After: "The system handles credential checks, MFA, and OAuth. Existing integrations still work."
+
+**Rule 29. Noun phrase bloat**
+
+AI pads every noun with qualifying modifiers: "industry-standard OAuth 2.0 protocols" (say "OAuth 2.0"), "complex multi-factor authentication flows" (say "MFA"), "comprehensive end-to-end testing strategy" (say "integration tests").
+
+Fix: one modifier maximum. If the audience knows the term, use the term alone.
+
+- Before: "We leveraged industry-standard OAuth 2.0 protocols and implemented a comprehensive monitoring strategy."
+- After: "We use OAuth 2.0 and added monitoring."
+
+**Rule 30. Self-congratulation framing**
+
+Distinct from significance inflation (Rule 1). This is framing routine engineering work as effort or achievement: "worked diligently", "through careful planning and iterative refinement", "we've created a solution that not only meets current requirements". No engineer talks like this in a PR description or standup.
+
+Fix: state what you built. Delete self-evaluation entirely.
+
+- Before: "Through careful planning and iterative refinement, we've created a solution that positions us well for future scaling needs."
+- After: "The system is ready for the load we're projecting in Q4."
+
+**Rule 31. Abstraction level monotony**
+
+All sentences in a paragraph sit at the same corporate-summary level. No concrete technical details (specific function names, error codes, latency numbers), no short factual statements, no opinion. The paragraph is smooth and forgettable.
+
+Fix: break the uniformity. Include at least one very concrete sentence (a number, a specific component, a direct comparison). Include at least one short sentence.
+
+- Before: "The caching layer provides significant performance improvements while maintaining data consistency across distributed nodes."
+- After: "The cache cut p99 from 800ms to 40ms. It runs Redis 7.2 with a write-through policy."
+
+**Rule 32. Missing contractions**
+
+In informal first-person writing (emails, PR descriptions, Slack posts, blog posts), AI avoids contractions. "We have" instead of "we've", "it is" instead of "it's", "do not" instead of "don't". This creates an unnatural stiffness.
+
+Fix: in first-person informal text, expand "we have" to "we've", "it is" to "it's", "do not" to "don't", "will not" to "won't", "cannot" to "can't". Retain expanded forms only when the emphasis requires it ("You must NOT do this").
+
+- Before: "We have completed the migration. It is now safe to remove the old tables."
+- After: "We've completed the migration. It's safe to remove the old tables."
+
+**Rule 33. Forward projection cliche**
+
+AI almost always ends a paragraph or document with a vague forward-looking statement: "Moving forward, we plan to...", "Going forward, we will...", "This positions us well for...". These sentences carry no information and signal automated drafting.
+
+Fix: delete the forward projection entirely. If the future plan is real, name it with a date or specific deliverable.
+
+- Before: "Moving forward, we plan to integrate biometric authentication and expand our SSO partnerships to further strengthen our security posture."
+- After: "Biometric auth is on the Q3 roadmap. We're in talks with Okta about SSO."
+
+**Rule 34. Resume verbs in technical context**
+
+Verbs like "established", "maintained", "ensured", "positioned", "strengthened", "spearheaded", "championed", "cultivated" come from CV writing, not engineering. An engineer says "set up", "kept", "checked", "ran", "built", "fixed".
+
+Fix: replace resume verbs with the plain verb you'd use in a standup or commit message.
+
+- Before: "We established a robust monitoring pipeline and ensured that all critical alerts were properly configured."
+- After: "We set up monitoring and configured the critical alerts."
 
 ## Code rules
 

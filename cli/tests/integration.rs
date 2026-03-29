@@ -83,8 +83,8 @@ fn diff_mode_unified_format() {
 /// --diff mode with only non-fixable findings emits a message on stderr.
 #[test]
 fn diff_mode_no_fixable_findings_message() {
-    // "meticulous" is High but has no auto-fix replacement.
-    let input = "The meticulous review was completed.\n";
+    // "showcasing" is High but has no auto-fix replacement.
+    let input = "The showcasing of work was completed.\n";
     let (_stdout, stderr, _code) = run_llmstrip(&["--diff"], input);
     assert!(
         stderr.contains("none auto-fixable"),

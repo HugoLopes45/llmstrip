@@ -8,38 +8,49 @@ When writing or editing code and text, follow these rules to avoid AI-sounding p
 
 ## Prevention: do not generate these patterns
 
-### Prose
+### Prose — structural
 
-**Banned vocabulary** — never use these words or phrases:
-tapestry, testament, delve, underscore, pivotal, comprehensive, multifaceted, evolving landscape, vibrant, crucial, moreover, furthermore, in conclusion, serves as a reminder, stands as a testament, ingrained, indelible, leveraging, seamlessly, robust, cutting-edge, revolutionary, innovative, groundbreaking, streamline, utilize (use "use"), facilitate (use a simpler verb), endeavor, commence (use "start"), subsequently (use "then"), it is worth noting, it is important to note, notably
+**Sentence level**
+- Vary sentence length. Include at least one sentence under 8 words per paragraph.
+- Start sentences with subject-verb. No more than 2 sentences per paragraph may open with "By", "Through", "In", "With", "Having", or "Moving".
+- Sentences may start with "And", "But", or "So".
+- One sentence, one action. Break compound sentences joined by "while maintaining", "ensuring that", "that enables".
+- No "not only X but also Y", "both X and Y", "everything from X to Y" — state items directly.
 
-**Structure**
-- Sentence case for all headings. Not title case.
-- No emojis as bullets or section markers.
-- Straight quotes only (" '). No curly/smart quotes.
-- One em dash per paragraph maximum.
-- Bold only the one thing per section that must not be missed.
+**Paragraph level**
+- No mini-essay structure: thesis sentence → evidence → forward projection. Start with the first concrete fact.
+- Never end a paragraph with a vague forward-looking statement. If the plan is real, name a date.
+- No self-congratulation framing: "worked diligently", "through careful planning", "we've created a solution that positions us".
+
+**Word and phrase level — never use**
+tapestry, testament, delve, underscore, pivotal, comprehensive, multifaceted, evolving landscape, vibrant, crucial, moreover, furthermore, in conclusion, serves as a reminder, stands as a testament, ingrained, indelible, leveraging, seamlessly, robust (use "solid"), cutting-edge, revolutionary, innovative (use "new"), groundbreaking, streamline, utilize (use "use"), facilitate (use a simpler verb), endeavor, commence (use "start"), subsequently (use "then"), it is worth noting, it is important to note, notably, diligently, spearheaded, meticulous (use "careful"), profound impact, iterative refinement, security posture, positions us well, truly excels, further strengthen, moving forward (unless followed by a date), going forward, established (use "set up"), maintained (use "kept"), ensured (use "checked")
+
+**Filler — never write these**
+- "in order to" (use "to")
+- "due to the fact that" (use "because")
+- "it is worth noting that"
+- "it is important to note that"
+- "it should be noted that"
+- "at the end of the day"
+- "with that said"
+- "in terms of" (name the specific aspect)
+- "a wide range of" (list what is included, or say "many")
+- "play a crucial role" (name the role or delete)
 
 **Tone**
 - Never open with "Great question!", "Absolutely!", "Certainly!", or "Happy to help".
 - Never close with "I hope this helps!", "Let me know if you have questions", or any goodbye.
 - No sycophantic affirmations before answering.
-- No "As of my last update" or training-cutoff disclaimers in document output.
+- No "As of my last update" or training-cutoff disclaimers.
+- Use contractions in first-person text: "we've" not "we have", "don't" not "do not".
+- No noun phrase bloat: one modifier per noun. "OAuth 2.0", not "industry-standard OAuth 2.0 protocols".
 
 **Claims**
 - Name experts by name and date, or do not invoke them.
-- No "not just X, it's Y" constructions.
-- No lists padded or truncated to exactly three items.
-- One hedge per claim maximum ("could", "might", "often"). Make conditions explicit.
 - No generic conclusions that apply to any topic.
+- One hedge per claim maximum. Make conditions explicit.
 
-**Filler** — never write these:
-- "in order to" (use "to")
-- "due to the fact that" (use "because")
-- "it is worth noting that"
-- "it is important to note that"
-- "at the end of the day"
-- "with that said"
+---
 
 ### Code
 
@@ -50,32 +61,31 @@ tapestry, testament, delve, underscore, pivotal, comprehensive, multifaceted, ev
 - Comments explain why, not what. If why is obvious, write no comment.
 
 **Naming**
-- Never append type to variable names: not userDataObject, configurationSettings, errorMessageString, listOfUsers.
-- Never use standalone generic names as a primary identifier: result, data, info, manager, handler, helper, util, service.
+- Never append type to variable names: not userDataObject, configurationSettings, errorMessageString.
+- Never use standalone generic names: result, data, info, manager, handler, helper, util, service.
 - Name the concept, not the container or lifecycle phase.
 
 **Commit messages**
 - Imperative mood, lowercase subject line.
 - Never use: "various", "several", "enhance", "improve code quality", "update codebase".
 - Name the specific thing changed and what was done to it.
-- Body explains why, not what. Omit body if why is obvious.
-- Never write past tense. Never write "in order to".
+- Body explains why, not what. Omit if why is obvious.
+- No past tense. No "in order to". No "initial implementation" (except the literal first commit).
 
 **Docstrings**
-- Never open a docstring with "This function serves as..." or "This class represents...".
-- Never write a docstring that only restates the signature.
+- Never open with "This function serves as..." or "This class represents...".
+- Never restate the signature.
 - Describe behavior from the caller's perspective.
 
 **Tests**
-- Test names describe scenario and expected outcome: test_expired_token_returns_401, not test_auth.
-- Never add # Arrange / # Act / # Assert section headers.
+- Test names describe scenario and outcome: test_expired_token_returns_401, not test_auth.
+- No # Arrange / # Act / # Assert headers.
 
 **Error messages**
 - Name the cause, not the symptom: "user_id missing from session", not "an error occurred".
-- Never write "An unexpected error occurred. Please try again later."
 
 ---
 
-## Correction: when asked to edit, remove these patterns
+## Correction: when asked to edit
 
 When the user asks you to clean, edit, review, or "llmstrip" a piece of text or code, apply every applicable rule above and output only the corrected content. No preamble. No list of changes. No closing remarks. Match the input format exactly.

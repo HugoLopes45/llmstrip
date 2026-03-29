@@ -13,17 +13,18 @@ struct TextRule {
 const TEXT_RULES: &[TextRule] = &[
     // === CRITICAL: r > 10× baseline (Kobak et al., Science Advances 2025) ===
     // source: kobak2024 r=25.2 — most extreme outlier across 15M PubMed abstracts
+    // "dig" works in all positions: "dig into", "dig deeper", "dig further"
     TextRule {
         needle: "delve",
         message: "LLM tell: 'delve' (25× excess frequency, Kobak 2025)",
-        replacement: Some("explore"),
+        replacement: Some("dig"),
         severity: Severity::Critical,
     },
     // source: kobak2024 r=25.2 — inflected form; word boundary prevents 'delves' matching 'delve'
     TextRule {
         needle: "delves",
         message: "LLM tell: 'delves' (25× excess frequency, Kobak 2025)",
-        replacement: Some("explores"),
+        replacement: Some("digs"),
         severity: Severity::Critical,
     },
     // source: kobak2024 r=9.2 — below the r>10 Critical threshold; High
@@ -45,14 +46,14 @@ const TEXT_RULES: &[TextRule] = &[
     TextRule {
         needle: "meticulous",
         message: "LLM tell: 'meticulous' (Kobak 2025, Neri 2024)",
-        replacement: None,
+        replacement: Some("careful"),
         severity: Severity::High,
     },
     // source: kobak2024 cross-validated; neri2024 confirmed
     TextRule {
         needle: "meticulously",
         message: "LLM tell: 'meticulously' (Kobak 2025, Neri 2024)",
-        replacement: None,
+        replacement: Some("carefully"),
         severity: Severity::High,
     },
     // source: kobak2024; liang2024 — doubled post-2023
@@ -136,21 +137,21 @@ const TEXT_RULES: &[TextRule] = &[
     TextRule {
         needle: "tapestry",
         message: "LLM filler: 'tapestry' (Neri 2024)",
-        replacement: None,
+        replacement: Some("mix"),
         severity: Severity::High,
     },
     // source: neri2024 confirmed high z-score
     TextRule {
         needle: "testament",
         message: "LLM filler: 'testament' (Neri 2024)",
-        replacement: None,
+        replacement: Some("proof"),
         severity: Severity::High,
     },
-    // source: neri2024 confirmed
+    // source: neri2024 confirmed; more specific phrase must come before bare "testament"
     TextRule {
         needle: "stands as a testament",
         message: "LLM cliché: 'stands as a testament' (Neri 2024)",
-        replacement: None,
+        replacement: Some("shows"),
         severity: Severity::High,
     },
     // === MEDIUM: High δ but lower r — common words elevated by LLM (Kobak 2025 δ data) ===
@@ -221,35 +222,35 @@ const TEXT_RULES: &[TextRule] = &[
     TextRule {
         needle: "groundbreaking",
         message: "LLM filler: 'groundbreaking' (Kobak 2025)",
-        replacement: None,
+        replacement: Some("new"),
         severity: Severity::Medium,
     },
     // source: kobak2024 excess adj; lower ratio — pre-LLM marketing language
     TextRule {
         needle: "innovative",
         message: "LLM filler: 'innovative' (Kobak 2025, lower ratio)",
-        replacement: None,
+        replacement: Some("new"),
         severity: Severity::Medium,
     },
     // source: kobak2024; lower ratio — pre-LLM marketing language
     TextRule {
         needle: "revolutionary",
         message: "LLM filler: 'revolutionary' (Kobak 2025, lower ratio)",
-        replacement: None,
+        replacement: Some("new"),
         severity: Severity::Medium,
     },
     // source: kobak2024; lower ratio — pre-LLM marketing language
     TextRule {
         needle: "cutting-edge",
         message: "LLM filler: 'cutting-edge' (Kobak 2025, lower ratio)",
-        replacement: None,
+        replacement: Some("modern"),
         severity: Severity::Medium,
     },
     // source: kobak2024 excess adj — common in specs/RFCs; flag but acknowledge context
     TextRule {
         needle: "robust",
         message: "LLM filler: 'robust' (Kobak 2025; legitimate in security specs — review context)",
-        replacement: None,
+        replacement: Some("solid"),
         severity: Severity::Medium,
     },
     // source: kobak2024 excess adj
@@ -270,7 +271,7 @@ const TEXT_RULES: &[TextRule] = &[
     TextRule {
         needle: "seamlessly",
         message: "LLM filler: 'seamlessly' (Kobak 2025)",
-        replacement: None,
+        replacement: Some("smoothly"),
         severity: Severity::Medium,
     },
     // source: kobak2024 excess adj
@@ -299,49 +300,49 @@ const TEXT_RULES: &[TextRule] = &[
     TextRule {
         needle: "certainly!",
         message: "Sycophantic opener: 'Certainly!' (RLHF-induced, Juzek 2025)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Critical,
     },
     TextRule {
         needle: "great question!",
         message: "Sycophantic opener: 'Great question!' (RLHF-induced, Juzek 2025)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Critical,
     },
     TextRule {
         needle: "of course!",
         message: "Sycophantic opener: 'Of course!' (RLHF-induced, Juzek 2025)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Critical,
     },
     TextRule {
         needle: "absolutely!",
         message: "Sycophantic opener: 'Absolutely!' (RLHF-induced, Juzek 2025)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Critical,
     },
     TextRule {
         needle: "happy to help",
         message: "Sycophantic opener: 'happy to help' (RLHF-induced, Juzek 2025)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Critical,
     },
     TextRule {
         needle: "happy to explain",
         message: "Sycophantic opener: 'happy to explain' (RLHF-induced, Juzek 2025)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Critical,
     },
     TextRule {
         needle: "i'd be happy to",
         message: "Sycophantic opener: 'I'd be happy to' (RLHF-induced, Juzek 2025)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Critical,
     },
     TextRule {
         needle: "i would be happy to",
         message: "Sycophantic opener: 'I would be happy to' (RLHF-induced, Juzek 2025)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Critical,
     },
     // === CHATBOT CLOSERS — Critical ===
@@ -349,19 +350,19 @@ const TEXT_RULES: &[TextRule] = &[
     TextRule {
         needle: "i hope this helps",
         message: "Chatbot closer: 'I hope this helps' (RLHF-induced, Juzek 2025)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Critical,
     },
     TextRule {
         needle: "let me know if",
         message: "Chatbot closer: 'Let me know if' (RLHF-induced, Juzek 2025)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Critical,
     },
     TextRule {
         needle: "feel free to",
         message: "Chatbot closer: 'Feel free to' (RLHF-induced, Juzek 2025)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Critical,
     },
     // === LOW: Filler connectors and hedging ===
@@ -369,13 +370,13 @@ const TEXT_RULES: &[TextRule] = &[
     TextRule {
         needle: "moreover",
         message: "LLM connector: 'moreover' (Rosenfeld 2024)",
-        replacement: None,
+        replacement: Some("also"),
         severity: Severity::Low,
     },
     TextRule {
         needle: "furthermore",
         message: "LLM connector: 'furthermore' (Rosenfeld 2024)",
-        replacement: None,
+        replacement: Some("also"),
         severity: Severity::Low,
     },
     TextRule {
@@ -387,26 +388,38 @@ const TEXT_RULES: &[TextRule] = &[
     TextRule {
         needle: "in conclusion",
         message: "LLM connector: 'in conclusion' (Rosenfeld 2024)",
-        replacement: None,
+        replacement: Some(""),
         severity: Severity::Low,
     },
     TextRule {
         needle: "serves as a reminder",
         message: "LLM filler: 'serves as a reminder'",
-        replacement: None,
+        replacement: Some("reminds us"),
         severity: Severity::Low,
     },
     // source: kobak2024 — hedging phrase
     TextRule {
+        needle: "it is worth noting that",
+        message: "LLM hedge: 'it is worth noting that' (Kobak 2025)",
+        replacement: Some(""),
+        severity: Severity::Low,
+    },
+    TextRule {
         needle: "it is worth noting",
         message: "LLM hedge: 'it is worth noting' (Kobak 2025)",
-        replacement: None,
+        replacement: Some("note:"),
+        severity: Severity::Low,
+    },
+    TextRule {
+        needle: "it is important to note that",
+        message: "LLM hedge: 'it is important to note that'",
+        replacement: Some(""),
         severity: Severity::Low,
     },
     TextRule {
         needle: "it is important to note",
         message: "LLM hedge: 'it is important to note'",
-        replacement: None,
+        replacement: Some("note:"),
         severity: Severity::Low,
     },
     TextRule {
@@ -439,6 +452,49 @@ const TEXT_RULES: &[TextRule] = &[
         message: "Filler: 'due to the fact that'",
         replacement: Some("because"),
         severity: Severity::Low,
+    },
+    // === ADDITIONAL DETECTIONS — new patterns missing from original list ===
+    TextRule {
+        needle: "profound impact",
+        message: "LLM filler: 'profound impact' — name the impact specifically",
+        replacement: None,
+        severity: Severity::Medium,
+    },
+    TextRule {
+        needle: "truly excels",
+        message: "LLM filler: 'truly excels'",
+        replacement: None,
+        severity: Severity::Medium,
+    },
+    TextRule {
+        needle: "diligently",
+        message: "LLM filler: 'diligently' — self-congratulatory",
+        replacement: None,
+        severity: Severity::Medium,
+    },
+    TextRule {
+        needle: "security posture",
+        message: "LLM filler: 'security posture' — use 'security'",
+        replacement: Some("security"),
+        severity: Severity::Low,
+    },
+    TextRule {
+        needle: "moving forward,",
+        message: "LLM closer: 'Moving forward,' — cut vague forward projections",
+        replacement: None,
+        severity: Severity::Medium,
+    },
+    TextRule {
+        needle: "going forward,",
+        message: "LLM closer: 'Going forward,' — cut vague forward projections",
+        replacement: None,
+        severity: Severity::Medium,
+    },
+    TextRule {
+        needle: "seamless",
+        message: "LLM filler: 'seamless/seamlessly' (Kobak 2025)",
+        replacement: Some("smooth"),
+        severity: Severity::Medium,
     },
 ];
 
