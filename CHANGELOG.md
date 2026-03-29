@@ -2,6 +2,15 @@
 
 All changes to this project are documented here.
 
+## v0.3.3 — 2026-03-29
+
+### Added
+- Renamed project from unai to llmstrip
+- Claude Code skill, Cursor rule, AGENTS.md integrations
+
+### Fixed
+- Release assets now correctly named llmstrip-* (was unai-*)
+
 ## v0.3.2 — 2026-02-22
 
 ### Added
