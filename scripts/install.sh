@@ -28,11 +28,39 @@ case "$OS" in
     ;;
 esac
 
-VERSION=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name"' | sed 's/.*"v\([^"]*\)".*/\1/')
+# Detect latest version (M1+L1 fix: guard empty VERSION)
+VERSION=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" \
+  | grep '"tag_name"' \
+  | sed 's/.*"v\([^"]*\)".*/\1/')
+
+if [ -z "$VERSION" ]; then
+  echo "error: could not detect latest version. GitHub API may be rate-limited."
+  echo "Install manually from https://github.com/$REPO/releases/latest"
+  exit 1
+fi
+
 URL="https://github.com/$REPO/releases/download/v${VERSION}/${BIN}-v${VERSION}-${TARGET}.tar.gz"
+# Note: no checksum verification — download is over HTTPS from GitHub.
+# For supply-chain-sensitive environments, verify manually against release notes.
+
+# M3 fix: extract to temp dir, not CWD
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
 
 echo "Installing $BIN $VERSION for $TARGET..."
-curl -fsSL "$URL" | tar xz
-install -m755 "$BIN" "${DESTDIR:-/usr/local/bin}/$BIN"
-rm -f "$BIN"
-echo "Done. Run: $BIN --version"
+curl -fsSL "$URL" | tar xz -C "$TMP"
+
+# M2 fix: detect install prefix, fall back to ~/.local/bin for non-root
+if [ -n "$DESTDIR" ]; then
+  INSTALL_DIR="$DESTDIR"
+elif [ "$(id -u)" = "0" ]; then
+  INSTALL_DIR="/usr/local/bin"
+else
+  INSTALL_DIR="$HOME/.local/bin"
+  mkdir -p "$INSTALL_DIR"
+  echo "note: installing to $INSTALL_DIR (not root). Add it to PATH if needed."
+fi
+
+install -m755 "$TMP/$BIN" "$INSTALL_DIR/$BIN"
+echo "Done. $BIN $VERSION installed to $INSTALL_DIR/$BIN"
+echo "Run: $BIN --version"
