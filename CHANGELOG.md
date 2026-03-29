@@ -2,6 +2,37 @@
 
 All changes to this project are documented here.
 
+## v0.3.4 — 2026-03-29
+
+### Added
+- 10 structural rules in prompt (25-34): compound clause addiction, mini-essay
+  paragraphs, sentence-initial transition saturation, paired construction overuse,
+  noun phrase bloat, self-congratulation framing, abstraction level monotony,
+  missing contractions, forward projection cliche, resume verbs in technical context
+- Structural baseline added to prompt header: sentence variance, contraction use,
+  transition saturation limits
+- Expanded Rule 7 banned list: diligently, meticulous, profound impact, iterative
+  refinement, security posture, truly excels, further strengthen, spearheaded
+- Expanded Rule 22 filler phrases: in terms of, a wide range of, play a crucial role,
+  it should be noted that
+- Missing delve inflections: delved->dug, delving->digging
+- New binary detections: profound impact, truly excels, diligently, security posture,
+  moving forward, going forward, seamless
+- Prompt distribution: prompts/copilot.md (GitHub Copilot), prompts/openai.md
+  (OpenAI custom instructions), cursor.mdc updated with new rules
+- README rewritten with prompt-first positioning, two clear paths (interactive vs automation)
+
+### Fixed
+- Grammar bug: delve -> dig (was -> explore, which broke "explore into")
+- Binary auto-fix replacements added for: meticulous->careful, tapestry->mix,
+  stands as a testament->shows, groundbreaking/innovative/revolutionary->new,
+  cutting-edge->modern, robust->solid, seamlessly->smoothly, moreover/furthermore->also
+- Sycophantic openers and chatbot closers now auto-delete (Some(""))
+- Prevent content destruction: in conclusion and it is worth noting reverted to
+  None — Some("") drops the entire line, destroying following content
+- Prevent offset corruption: bare "testament" reverted to None to avoid conflicting
+  with "stands as a testament" replacement on the same line
+
 ## v0.3.3 — 2026-03-29
 
 ### Added
